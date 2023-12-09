@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 
   LOG_INFO("compiling filter...");
   // acquire all modbus over TCP packets
-  char *filter_expression = "tcp port 502 and (tcp[13] & 0x7f == 0x01)";
+  char *filter_expression = "tcp port 502";
   struct bpf_program filter_program;
   int optimize = 0;
   bpf_u_int32 netmask = 0;
@@ -66,14 +66,28 @@ int main(int argc, char **argv)
     LOG_ERROR("could not set filter on pcap");
   }
 
-  const unsigned char *packet;
+  const u_char *packet;
   struct pcap_pkthdr header;
   LOG_INFO("awaiting matching packet");
 
-  pcap_next(pcap, &header);
-  printf("got a packet with length [%d]", header.len);
+  packet = pcap_next(pcap, &header);
+  LOG_INFO("got a packet with length [%d]", header.len);
 
   // TODO:  more logic goes here
+  uint16_t transaction = packet[0];
+  uint16_t protocol = packet[2];
+  uint16_t length = packet[4];
+  uint8_t unit = packet[6];
+  uint8_t function = packet[7];
+  // data follows
+  // uint16_t checksum = (last 2 bytes)
+  LOG_INFO("transaction: %d", transaction);
+  LOG_INFO("protocol: %d", protocol);
+  LOG_INFO("length: %d", length);
+  LOG_INFO("unit: %d", unit);
+  LOG_INFO("function: %d", function);
+
+
 
   pcap_close(pcap);
   return 0;
