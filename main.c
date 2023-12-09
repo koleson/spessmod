@@ -73,6 +73,9 @@ int main(int argc, char **argv)
   packet = pcap_next(pcap, &header);
   LOG_INFO("got a packet with length [%d]", header.len);
 
+  // i think the modbus tcp IPv4 ethernet packet would be 76 bytes - could bail out early here
+  // kmo 9 dec 2023
+
   uint8_t dest_mac[6];
   memcpy(dest_mac, packet, 6 * sizeof(uint8_t));
   LOG_INFO("destination MAC: %02x:%02x:%02x:%02x:%02x:%02x",
@@ -83,25 +86,32 @@ int main(int argc, char **argv)
   LOG_INFO("source MAC: %02x:%02x:%02x:%02x:%02x:%02x",
            src_mac[0], src_mac[1], src_mac[2], src_mac[3], src_mac[4], src_mac[5]);
   
+  // TODO: check endianness!  this probably needs arm vs x86 differentiation?
+  // kmo 9 dec 2023
   uint16_t packet_type;
   memcpy(&packet_type, packet + (12 * sizeof(uint8_t)), 1 * sizeof(uint16_t));
+  // byte swap for endianness
+  packet_type = (packet_type >> 8) | (packet_type << 8);
   LOG_INFO("type: 0x%04x", packet_type);
 
   // TODO:  probably bail out if type is not 0x0800 (IPv4) for now.
 
-  uint8_t byte_zero = packet[0];
-  uint8_t byte_one = packet[1];
+  uint8_t byte_zero = packet[66];
+  uint8_t byte_one = packet[67];
   LOG_INFO("byte 0: 0x%02x", byte_zero);
   LOG_INFO("byte 1: 0x%02x", byte_one);
 
 
 
   // TODO:  more logic goes here
-  uint16_t transaction = packet[6];
-  uint16_t protocol = packet[8];
-  uint16_t length = packet[10];
-  uint8_t unit = packet[12];
-  uint8_t function = packet[13];
+  uint16_t transaction = packet[66];
+  uint16_t protocol = packet[68];
+  uint16_t length = packet[70];
+  uint8_t unit = packet[72];
+  uint8_t function = packet[73];
+
+  
+
   // data follows
   // uint16_t checksum = (last 2 bytes)
   LOG_INFO("transaction: %d", transaction);
