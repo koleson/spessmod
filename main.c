@@ -30,7 +30,8 @@ int main(int argc, char **argv)
 
   if (selected_interface == NULL)
   {
-    LOG_ERROR("shouldn't get here");
+    LOG_ERROR("shouldn't get here - get_interface should exit if unable to acquire interface.");
+    exit(1);
   }
 
   LOG_DEBUG("opening pcap on interface %s", selected_interface);
@@ -44,9 +45,38 @@ int main(int argc, char **argv)
   {
     LOG_INFO("pcap open in promiscuous mode!");
   }
-  
-  //LOG_INFO("compiling filter...");
-  //char* filter = "mbtcp";
+
+  LOG_INFO("compiling filter...");
+  // acquire all modbus over TCP packets
+  char *filter_expression = "tcp port 502 and (tcp[13] & 0x7f == 0x01)";
+  struct bpf_program filter_program;
+  int optimize = 0;
+  bpf_u_int32 netmask = 0;
+
+  int compilation_result = pcap_compile(pcap, &filter_program, filter_expression, optimize, netmask);
+  if (compilation_result != 0)
+  {
+    LOG_ERROR("could not compile bpf_program from expression %s", filter_expression);
+    exit(2);
+  }
+
+  int setfilter_result = pcap_setfilter(pcap, &filter_program);
+  if (setfilter_result != 0)
+  {
+    LOG_ERROR("could not set filter on pcap");
+  }
+
+  const unsigned char *packet;
+  struct pcap_pkthdr header;
+  LOG_INFO("awaiting matching packet");
+
+  pcap_next(pcap, &header);
+  printf("got a packet with length [%d]", header.len);
+
+  // TODO:  more logic goes here
+
+  pcap_close(pcap);
+  return 0;
 }
 
 const char *get_interface(const int argc, const char **argv, char *errbuf)
