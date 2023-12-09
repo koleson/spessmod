@@ -84,7 +84,7 @@ int main(int argc, char **argv)
            src_mac[0], src_mac[1], src_mac[2], src_mac[3], src_mac[4], src_mac[5]);
   
   uint16_t packet_type;
-  memcpy(packet_type, packet + (12 * sizeof(uint8_t)), 1 * sizeof(uint16_t));
+  memcpy(&packet_type, packet + (12 * sizeof(uint8_t)), 1 * sizeof(uint16_t));
   LOG_INFO("type: 0x%04x", packet_type);
 
   // TODO:  probably bail out if type is not 0x0800 (IPv4) for now.
