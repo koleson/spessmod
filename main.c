@@ -73,6 +73,11 @@ int main(int argc, char **argv)
   packet = pcap_next(pcap, &header);
   LOG_INFO("got a packet with length [%d]", header.len);
 
+  u_char dest_mac[6];
+  memcpy(dest_mac, packet, sizeof(u_char) * 6);
+  LOG_INFO("destination MAC: %02x:%02x:%02x:%02x:%02x:%02x",
+           dest_mac[0], dest_mac[1], dest_mac[2], dest_mac[3], dest_mac[4], dest_mac[5]);
+
   uint8_t byte_zero = packet[0];
   uint8_t byte_one = packet[1];
   LOG_INFO("byte 0: 0x%02x", byte_zero);
