@@ -73,6 +73,11 @@ int main(int argc, char **argv)
   packet = pcap_next(pcap, &header);
   LOG_INFO("got a packet with length [%d]", header.len);
 
+  uint8_t byte_zero = packet[0];
+  uint8_t byte_one = packet[1];
+  LOG_INFO("byte 0: 0x%02x", byte_zero);
+  LOG_INFO("byte 1: 0x%02x", byte_one);
+
   // TODO:  more logic goes here
   uint16_t transaction = packet[6];
   uint16_t protocol = packet[8];
