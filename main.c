@@ -74,11 +74,11 @@ int main(int argc, char **argv)
   LOG_INFO("got a packet with length [%d]", header.len);
 
   // TODO:  more logic goes here
-  uint16_t transaction = packet[0];
-  uint16_t protocol = packet[2];
-  uint16_t length = packet[4];
-  uint8_t unit = packet[6];
-  uint8_t function = packet[7];
+  uint16_t transaction = packet[6];
+  uint16_t protocol = packet[8];
+  uint16_t length = packet[10];
+  uint8_t unit = packet[12];
+  uint8_t function = packet[13];
   // data follows
   // uint16_t checksum = (last 2 bytes)
   LOG_INFO("transaction: %d", transaction);
