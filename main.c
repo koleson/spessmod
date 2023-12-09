@@ -50,6 +50,7 @@ pcap_if_t* get_interface(int argc, char** argv, char* errbuf) {
     // TODO:  compare selected device name against argument or "en"/"eth"
     devnum++;
   }
-
+  
+  // TODO:  should not get here
   return NULL;
 }
