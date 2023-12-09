@@ -4,7 +4,7 @@ include(ExternalProject)
 project(spessmod)
 
 add_executable(spessmod main.c)
-
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
 
 set(LIBPCAP_NAME libpcap)
 set(LIBPCAP_GIT_URL https://github.com/the-tcpdump-group/libpcap)
