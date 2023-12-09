@@ -73,15 +73,28 @@ int main(int argc, char **argv)
   packet = pcap_next(pcap, &header);
   LOG_INFO("got a packet with length [%d]", header.len);
 
-  u_char dest_mac[6];
-  memcpy(dest_mac, packet, sizeof(u_char) * 6);
+  uint8_t dest_mac[6];
+  memcpy(dest_mac, packet, 6 * sizeof(uint8_t));
   LOG_INFO("destination MAC: %02x:%02x:%02x:%02x:%02x:%02x",
            dest_mac[0], dest_mac[1], dest_mac[2], dest_mac[3], dest_mac[4], dest_mac[5]);
+
+  uint8_t src_mac[6];
+  memcpy(dest_mac, packet + (6 * sizeof(uint8_t)), 6 * sizeof(uint8_t));
+  LOG_INFO("source MAC: %02x:%02x:%02x:%02x:%02x:%02x",
+           src_mac[0], src_mac[1], src_mac[2], src_mac[3], src_mac[4], src_mac[5]);
+  
+  uint16_t packet_type;
+  memcpy(packet_type, packet + (12 * sizeof(uint8_t)), 1 * sizeof(uint16_t));
+  LOG_INFO("type: 0x%04d", packet_type);
+
+  // TODO:  probably bail out if type is not 0x0800 (IPv4) for now.
 
   uint8_t byte_zero = packet[0];
   uint8_t byte_one = packet[1];
   LOG_INFO("byte 0: 0x%02x", byte_zero);
   LOG_INFO("byte 1: 0x%02x", byte_one);
+
+
 
   // TODO:  more logic goes here
   uint16_t transaction = packet[6];
