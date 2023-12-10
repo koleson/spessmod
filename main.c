@@ -7,6 +7,7 @@
 #include <net/ethernet.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
+#include <netinet/tcp.h>
 
 #include "log.h"
 
@@ -120,17 +121,50 @@ int main(int argc, char **argv)
   // informational only:  print protocol
   LOG_INFO("IP protocol: %01x", ip_header->ip_p);
 
-  uint8_t byte_zero = packet[66];
-  uint8_t byte_one = packet[67];
+  if (ip_header->ip_p != IPPROTO_TCP)
+  {
+    LOG_INFO("confirmed packet is TCP");
+  }
+  else
+  {
+    LOG_WARN("packet appears to not be TCP - how this happened given the filter is a mystery.");
+    exit(2);
+  }
+
+  const struct tcphdr *tcp_header = (struct tcphdr *)(packet + sizeof(struct ether_header) + sizeof(struct ip));
+
+  // TODO:  is this the right size for this?  VSCode very angry at `struct ip`
+  // kmo 9 dec 2023 20h42
+  uint32_t source_port = tcp_header->source;
+  uint32_t dest_port = tcp_header->dest;
+  LOG_INFO("source port: %d", source_port);
+  LOG_INFO("destination port: %d", dest_port);
+
+  if (dest_port == 502)
+  {
+    LOG_INFO("confirmed destination port 502");
+  }
+  else
+  {
+    LOG_ERROR("packet not heading for port 502 in spite of filters - possibly not modbus");
+    exit(2);
+  }
+
+  u_char* data = (u_char*)(packet + sizeof(struct ether_header) + sizeof(struct ip) + sizeof(struct tcphdr));
+  uint32_t data_length = header.len - (sizeof(struct ether_header) + sizeof(struct ip) + sizeof(struct tcphdr));
+  LOG_INFO("data length: %d", data_length);
+  
+  uint8_t byte_zero = data[0];
+  uint8_t byte_one = data[1];
   LOG_INFO("byte 0: 0x%02x", byte_zero);
   LOG_INFO("byte 1: 0x%02x", byte_one);
 
   // TODO:  more logic goes here
-  uint16_t transaction = packet[66];
-  uint16_t protocol = packet[68];
-  uint16_t length = packet[70];
-  uint8_t unit = packet[72];
-  uint8_t function = packet[73];
+  uint16_t transaction = data[0];
+  uint16_t protocol = data[2];
+  uint16_t length = data[4];
+  uint8_t unit = data[6];
+  uint8_t function = data[7];
 
   // data follows
   // uint16_t checksum = (last 2 bytes)
