@@ -176,11 +176,6 @@ int main(int argc, char **argv)
     print("%02x ", data[byte]);
   }
   printf("\n\n");
-  
-  uint8_t byte_zero = data[0];
-  uint8_t byte_one = data[1];
-  LOG_INFO("byte 0: 0x%02x", byte_zero);
-  LOG_INFO("byte 1: 0x%02x", byte_one);
 
   // TODO:  more logic goes here
   uint16_t transaction = ntohs((data[0] << 8) | data[1]);
