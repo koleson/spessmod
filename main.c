@@ -140,9 +140,10 @@ int main(int argc, char **argv)
   LOG_INFO("source port: %d", source_port);
   LOG_INFO("destination port: %d", dest_port);
 
-  if (dest_port == 502)
+  // replies don't have to be to port 502, it seems
+  if (dest_port == 502 || source_port == 502)
   {
-    LOG_INFO("confirmed destination port 502");
+    LOG_INFO("confirmed port 502 as source or destination");
   }
   else
   {
