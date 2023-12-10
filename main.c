@@ -16,41 +16,11 @@
 // http://yuba.stanford.edu/~casado/pcap/section1.html
 
 
-int main(int argc, char **argv)
+int main(const int argc, const char **argv)
 {
-
-  /*
-  we actually don't care about the network address or mask
-  of the interface we capture on since we assume only the
-  PVS and ESS are on the interface.
-  kmo 8 dec 2023 23h46
-  */
-  // char* net; /* dot notation of the network address */
-  // char* mask; /* dot notation of the network mask */
-
-  int retval; /* return code */
   char errbuf[PCAP_ERRBUF_SIZE];
 
-  const char *selected_interface = get_interface(argc, argv, errbuf);
-  int promiscuous = 1;
-
-  if (selected_interface == NULL)
-  {
-    LOG_ERROR("exiting - unable to acquire interface.");
-    exit(1);
-  }
-
-  LOG_DEBUG("opening pcap on interface %s", selected_interface);
-  pcap_t *pcap = pcap_open_live(selected_interface, BUFSIZ, promiscuous, 1000, errbuf);
-  if (pcap == NULL)
-  {
-    LOG_ERROR("Couldn't open interface %s in promiscuous mode.", selected_interface);
-    exit(2);
-  }
-  else
-  {
-    LOG_INFO("pcap open in promiscuous mode!");
-  }
+  pcap_t* pcap = get_pcap(argc, argv, errbuf);
 
   LOG_INFO("compiling filter...");
   // acquire all modbus over TCP packets
@@ -75,144 +45,12 @@ int main(int argc, char **argv)
   const u_char* packet;
   struct pcap_pkthdr header;
   LOG_INFO("awaiting matching packet");
-
   packet = pcap_next(pcap, &header);
 
-  // from here, packet and header are the relevant params.  should be able to extract.
-  // kmo 10 dec 2023 13h35
   LOG_INFO("processing packet");
   process_packet(NULL, &header, packet);
 
-  /*
-  LOG_INFO("got a packet with length [%d]", header.len);
 
-  // following use of structs/pointer arithmetic based on:
-  // https://elf11.github.io/2017/01/22/libpcap-in-C.html
-  // kmo 9 dec 2023 20h23
-
-  // bail out if packet isn't IPv4
-  const struct ether_header *ethernet_header = (struct ether_header *)packet;
-  LOG_INFO("type: 0x%04x", ethernet_header->ether_type);
-
-  if (ntohs(ethernet_header->ether_type) == ETHERTYPE_IP)
-  {
-    LOG_INFO("confirmed this is an IPv4 packet");
-  }
-  else if (ntohs(ethernet_header->ether_type == ETHERTYPE_IPV6))
-  {
-    LOG_WARN("got an IPv6 packet, which is a surprise");
-    exit(2);
-  }
-  else
-  {
-    LOG_WARN("this doesn't look like an IP packet...");
-    exit(2);
-  }
-
-  // informational only:  print MAC addresses involved
-  LOG_INFO("destination MAC: %02x:%02x:%02x:%02x:%02x:%02x",
-           ethernet_header->ether_dhost[0], ethernet_header->ether_dhost[1], ethernet_header->ether_dhost[2],
-           ethernet_header->ether_dhost[3], ethernet_header->ether_dhost[4], ethernet_header->ether_dhost[5]);
-  LOG_INFO("destination MAC: %02x:%02x:%02x:%02x:%02x:%02x",
-           ethernet_header->ether_shost[0], ethernet_header->ether_shost[1], ethernet_header->ether_shost[2],
-           ethernet_header->ether_shost[3], ethernet_header->ether_shost[4], ethernet_header->ether_shost[5]);
-
-  // informational only:  print IP addresses involved
-  const struct ip* ip_header = (struct ip*)(packet + sizeof(struct ether_header));
-  char source_ip[INET_ADDRSTRLEN];
-  char dest_ip[INET_ADDRSTRLEN];
-  inet_ntop(AF_INET, &(ip_header->ip_src), source_ip, INET_ADDRSTRLEN);
-  inet_ntop(AF_INET, &(ip_header->ip_dst), dest_ip, INET_ADDRSTRLEN);
-  LOG_INFO("Source IP: %s", source_ip);
-  LOG_INFO("Destination IP: %s", dest_ip);
-
-  // informational only:  print protocol
-  LOG_INFO("IP protocol: %01x", ip_header->ip_p);
-
-  if (ip_header->ip_p == IPPROTO_TCP)
-  {
-    LOG_INFO("confirmed packet is TCP");
-  }
-  else
-  {
-    LOG_WARN("packet appears to not be TCP - how this happened given the filter is a mystery.");
-    exit(2);
-  }
-
-  const struct tcphdr* tcp_header = (struct tcphdr *)(packet + sizeof(struct ether_header) + sizeof(struct ip));
-
-  // TODO:  is this the right size for this?  VSCode very angry at `struct ip`
-  // kmo 9 dec 2023 20h42
-  // kernel source says 16 bits which sounds right.
-  // kmo 9 dec 20h59
-  // endianness!  kmo 9 dec 2023 21h05
-  uint8_t data_offset_words = tcp_header->doff;
-  uint16_t source_port = ntohs(tcp_header->source);
-  uint16_t dest_port = ntohs(tcp_header->dest);
-  LOG_INFO("source port: %d (0x%04x)", source_port, source_port);
-  LOG_INFO("destination port: %d (0x%04x)", dest_port, dest_port);
-
-  // replies don't have to be to port 502, it seems
-  if (dest_port == 502 || source_port == 502)
-  {
-    LOG_INFO("confirmed port 502 as source or destination");
-  }
-  else
-  {
-    LOG_ERROR("packet not heading for port 502 in spite of filters - possibly not modbus");
-    exit(2);
-  }
-
-  LOG_INFO("sizes - ether %d, ip %d, tcp %d", 
-    sizeof(struct ether_header), sizeof(struct ip), sizeof(struct tcphdr));
-
-  uint8_t data_offset_bytes = data_offset_words * 4;
-  uint8_t options_length = data_offset_bytes - sizeof(struct tcphdr);
-  LOG_INFO("TCP Header data offset: %d bytes, %d of which are TCP options", 
-    data_offset_bytes, options_length);
-  
-  u_char* data = (u_char*)(packet + sizeof(struct ether_header) + sizeof(struct ip) 
-    + sizeof(struct tcphdr) + (sizeof(uint8_t) * options_length));
-  uint32_t data_length = header.len - (sizeof(struct ether_header) + sizeof(struct ip)
-    + sizeof(struct tcphdr) + (sizeof(uint8_t) * options_length));
-  
-  LOG_INFO("data length: %d", data_length);
-  
-  LOG_INFO("hex dump follows:");
-  printf("\n\n");
-  for (int byte = 0; byte < data_length; byte++) {
-    printf("%02x.", (uint8_t)data[byte]);
-  }
-  printf("\n\n");
-
-  uint16_t transaction = (data[0] << 8) | data[1];
-  uint16_t protocol = (data[2] << 8) | data[3];
-  uint16_t length = (data[4] << 8) | data[5];
-  uint8_t unit = data[6];
-  uint8_t function = data[7];
-
-  // TODO:  further interpretation of modbus data,
-  // which is conditional on function and other state.
-  // kmo 9 dec 2023 22h15
-
-  // data follows
-  // uint16_t checksum = (last 2 bytes)
-  LOG_INFO("transaction: %d", transaction);
-  LOG_INFO("protocol: %d", protocol);
-  LOG_INFO("length: %d", length);
-  LOG_INFO("unit: %d", unit);
-  LOG_INFO("function: %d", function);
-
-  if (function == 3) {
-    LOG_INFO("modbus function: Read Holding Registers");
-    // TODO:  check if this is query or response
-    // hacky - could base on IP in subnet (1 vs non-1)
-
-    // read registers
-    // uint16_t base_register = (data[8] << 8) | data[9];
-    // uint16_t num_registers = (data[10] << 8 | data[11]);
-  }
-  */
   pcap_close(pcap);
   return 0;
 }

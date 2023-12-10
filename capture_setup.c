@@ -11,6 +11,36 @@
 
 #include <pcap.h>
 
+// private interface
+const char* get_interface(const int argc, const char **argv, char *errbuf);
+
+
+pcap_t* get_pcap(const int argc, const char **argv, char *errbuf) {
+  // check whether args suggest interface or pcap file
+
+  // for now, just assume interface.
+  const char * selected_interface = get_interface(argc, argv, errbuf);
+  int promiscuous = 1;
+
+  if (selected_interface == NULL)
+  {
+    LOG_ERROR("exiting - unable to acquire interface.");
+    exit(1);
+  }
+
+  LOG_DEBUG("opening pcap on interface %s", selected_interface);
+  pcap_t *pcap = pcap_open_live(selected_interface, BUFSIZ, promiscuous, 1000, errbuf);
+  if (pcap == NULL)
+  {
+    LOG_ERROR("Couldn't open interface %s in promiscuous mode.", selected_interface);
+    exit(2);
+  }
+  else
+  {
+    LOG_INFO("pcap open in promiscuous mode!");
+  }
+}
+
 const char *get_interface(const int argc, const char **argv, char *errbuf)
 {
   LOG_DEBUG("argc: %d", argc);
@@ -30,7 +60,7 @@ const char *get_interface(const int argc, const char **argv, char *errbuf)
   else
   {
     use_first_ethernet_interface = false;
-    specified_interface_name = argv[1];
+    specified_interface_name = (char *)argv[1];
     LOG_INFO("specified interface: %s", specified_interface_name);
   }
 

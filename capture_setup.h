@@ -5,6 +5,9 @@
 #ifndef CAPTURE_SETUP_H
 #define CAPTURE_SETUP_H
 
-const char *get_interface(const int argc, const char **argv, char *errbuf);
+#include <pcap.h>
+
+// using args, chooses between a file-based and interface-based pcap.
+pcap_t* get_pcap(const int argc, const char **argv, char *errbuf);
 
 #endif //CAPTURE_SETUP_H
