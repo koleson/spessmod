@@ -158,8 +158,7 @@ int main(int argc, char **argv)
   LOG_INFO("sizes - ether %d, ip %d, tcp %d", 
     sizeof(struct ether_header), sizeof(struct ip), sizeof(struct tcphdr));
 
-  uint8_t data_offset = tcp_header->doff;
-  LOG_INFO("data offset: %d * 4 bytes");
+  LOG_INFO("data offset: %d * 4 bytes", data_offset);
   u_char* data = (u_char*)(packet + sizeof(struct ether_header) + sizeof(struct ip) + sizeof(struct tcphdr));
   uint32_t data_length = header.len - (sizeof(struct ether_header) + sizeof(struct ip) + sizeof(struct tcphdr));
   LOG_INFO("data length: %d", data_length);
