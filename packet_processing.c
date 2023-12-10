@@ -1,88 +1,19 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdbool.h>
-#include <pcap.h>
+//
+// Created by koleson on 12/10/23.
+//
+
+#include "packet_processing.h"
+#include "log.h"
 
 #include <net/ethernet.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
 
-#include "log.h"
-#include "capture_setup.h"
-#include "packet_processing.h"
-
-// http://yuba.stanford.edu/~casado/pcap/section1.html
-
-
-int main(int argc, char **argv)
-{
-
-  /*
-  we actually don't care about the network address or mask
-  of the interface we capture on since we assume only the
-  PVS and ESS are on the interface.
-  kmo 8 dec 2023 23h46
-  */
-  // char* net; /* dot notation of the network address */
-  // char* mask; /* dot notation of the network mask */
-
-  int retval; /* return code */
-  char errbuf[PCAP_ERRBUF_SIZE];
-
-  const char *selected_interface = get_interface(argc, argv, errbuf);
-  int promiscuous = 1;
-
-  if (selected_interface == NULL)
-  {
-    LOG_ERROR("exiting - unable to acquire interface.");
-    exit(1);
-  }
-
-  LOG_DEBUG("opening pcap on interface %s", selected_interface);
-  pcap_t *pcap = pcap_open_live(selected_interface, BUFSIZ, promiscuous, 1000, errbuf);
-  if (pcap == NULL)
-  {
-    LOG_ERROR("Couldn't open interface %s in promiscuous mode.", selected_interface);
-    exit(2);
-  }
-  else
-  {
-    LOG_INFO("pcap open in promiscuous mode!");
-  }
-
-  LOG_INFO("compiling filter...");
-  // acquire all modbus over TCP packets
-  char *filter_expression = "tcp port 502";
-  struct bpf_program filter_program;
-  int optimize = 0;
-  bpf_u_int32 netmask = 0;
-
-  int compilation_result = pcap_compile(pcap, &filter_program, filter_expression, optimize, netmask);
-  if (compilation_result != 0)
-  {
-    LOG_ERROR("could not compile bpf_program from expression %s", filter_expression);
-    exit(2);
-  }
-
-  int setfilter_result = pcap_setfilter(pcap, &filter_program);
-  if (setfilter_result != 0)
-  {
-    LOG_ERROR("could not set filter on pcap");
-  }
-
-  const u_char* packet;
-  struct pcap_pkthdr* header;
-  LOG_INFO("awaiting matching packet");
-
-  packet = pcap_next(pcap, header);
-
-  // from here, packet and header are the relevant params.  should be able to extract.
+void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet) {
+   // from here, packet and header are the relevant params.  should be able to extract.
   // kmo 10 dec 2023 13h35
-  process_packet(NULL, header, packet);
-  /*
-  LOG_INFO("got a packet with length [%d]", header.len);
+  LOG_INFO("got a packet with length [%d]", header->len);
 
   // following use of structs/pointer arithmetic based on:
   // https://elf11.github.io/2017/01/22/libpcap-in-C.html
@@ -98,13 +29,13 @@ int main(int argc, char **argv)
   }
   else if (ntohs(ethernet_header->ether_type == ETHERTYPE_IPV6))
   {
-    LOG_WARN("got an IPv6 packet, which is a surprise");
-    exit(2);
+    LOG_WARN("got an IPv6 packet, which is a surprise - not processing");
+    return;
   }
   else
   {
-    LOG_WARN("this doesn't look like an IP packet...");
-    exit(2);
+    LOG_WARN("this doesn't look like an IP packet - not processing");
+    return;
   }
 
   // informational only:  print MAC addresses involved
@@ -133,8 +64,8 @@ int main(int argc, char **argv)
   }
   else
   {
-    LOG_WARN("packet appears to not be TCP - how this happened given the filter is a mystery.");
-    exit(2);
+    LOG_WARN("packet appears to not be TCP - how this happened given the filter is a mystery.  not processing.");
+    return;
   }
 
   const struct tcphdr* tcp_header = (struct tcphdr *)(packet + sizeof(struct ether_header) + sizeof(struct ip));
@@ -157,25 +88,25 @@ int main(int argc, char **argv)
   }
   else
   {
-    LOG_ERROR("packet not heading for port 502 in spite of filters - possibly not modbus");
-    exit(2);
+    LOG_ERROR("packet not heading for port 502 in spite of filters - possibly not modbus 0 not processing further.");
+    return;
   }
 
-  LOG_INFO("sizes - ether %d, ip %d, tcp %d", 
+  LOG_INFO("sizes - ether %lu, ip %lu, tcp %lu",
     sizeof(struct ether_header), sizeof(struct ip), sizeof(struct tcphdr));
 
   uint8_t data_offset_bytes = data_offset_words * 4;
   uint8_t options_length = data_offset_bytes - sizeof(struct tcphdr);
-  LOG_INFO("TCP Header data offset: %d bytes, %d of which are TCP options", 
+  LOG_INFO("TCP Header data offset: %d bytes, %d of which are TCP options",
     data_offset_bytes, options_length);
-  
-  u_char* data = (u_char*)(packet + sizeof(struct ether_header) + sizeof(struct ip) 
+
+  u_char* data = (u_char*)(packet + sizeof(struct ether_header) + sizeof(struct ip)
     + sizeof(struct tcphdr) + (sizeof(uint8_t) * options_length));
-  uint32_t data_length = header.len - (sizeof(struct ether_header) + sizeof(struct ip)
+  uint32_t data_length = header->len - (sizeof(struct ether_header) + sizeof(struct ip)
     + sizeof(struct tcphdr) + (sizeof(uint8_t) * options_length));
-  
+
   LOG_INFO("data length: %d", data_length);
-  
+
   LOG_INFO("hex dump follows:");
   printf("\n\n");
   for (int byte = 0; byte < data_length; byte++) {
@@ -210,7 +141,4 @@ int main(int argc, char **argv)
     // uint16_t base_register = (data[8] << 8) | data[9];
     // uint16_t num_registers = (data[10] << 8 | data[11]);
   }
-  */
-  pcap_close(pcap);
-  return 0;
 }

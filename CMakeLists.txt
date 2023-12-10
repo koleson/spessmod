@@ -5,7 +5,9 @@ project(spessmod)
 
 add_executable(spessmod main.c
 				capture_setup.c
-				capture_setup.h)
+				capture_setup.h
+				packet_processing.c
+				packet_processing.h)
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 
 set(LIBPCAP_NAME libpcap)
