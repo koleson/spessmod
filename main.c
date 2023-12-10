@@ -137,8 +137,8 @@ int main(int argc, char **argv)
   // kmo 9 dec 2023 20h42
   __be16 source_port = tcp_header->source;
   __be16 dest_port = tcp_header->dest;
-  LOG_INFO("source port: %d", source_port);
-  LOG_INFO("destination port: %d", dest_port);
+  LOG_INFO("source port: %d (0x%04x)", source_port, source_port);
+  LOG_INFO("destination port: %d (0x%04x)", dest_port, dest_port);
 
   // replies don't have to be to port 502, it seems
   if (dest_port == 502 || source_port == 502)
