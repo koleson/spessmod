@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 
   if (selected_interface == NULL)
   {
-    LOG_ERROR("shouldn't get here - get_interface should exit if unable to acquire interface.");
+    LOG_ERROR("exiting - unable to acquire interface.");
     exit(1);
   }
 
@@ -75,6 +75,9 @@ int main(int argc, char **argv)
   LOG_INFO("awaiting matching packet");
 
   packet = pcap_next(pcap, &header);
+
+  // from here, packet and header are the relevant params.  should be able to extract.
+  // kmo 10 dec 2023 13h35
   LOG_INFO("got a packet with length [%d]", header.len);
 
   // following use of structs/pointer arithmetic based on:

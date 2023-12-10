@@ -6,7 +6,7 @@
 #include "log.h"
 
 #include <stdbool.h>
-#include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <pcap.h>
@@ -17,7 +17,7 @@ const char *get_interface(const int argc, const char **argv, char *errbuf)
   if (argc > 2)
   {
     LOG_ERROR("too many arguments, confused, bailing out");
-    exit(1);
+    return NULL;
   }
 
   bool use_first_ethernet_interface;
@@ -41,7 +41,7 @@ const char *get_interface(const int argc, const char **argv, char *errbuf)
   if (findalldevs_return != 0)
   {
     LOG_ERROR("error finding devices: %s", errbuf);
-    exit(1);
+    return NULL;
   }
 
   int devnum = 0;
@@ -87,7 +87,7 @@ const char *get_interface(const int argc, const char **argv, char *errbuf)
   if (selected_device_name == NULL)
   {
     LOG_ERROR("could not find specified interface %s", specified_interface_name);
-    exit(1);
+    return NULL;
   }
   else
   {
