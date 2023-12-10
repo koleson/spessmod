@@ -97,7 +97,24 @@ int main(int argc, char **argv)
   packet_type = (packet_type >> 8) | (packet_type << 8);
   LOG_INFO("type: 0x%04x", packet_type);
 
-  // TODO:  probably bail out if type is not 0x0800 (IPv4) for now.
+
+  // bail out if packet isn't IPv4
+  const struct ether_header *ethernet_header = (struct ether_header *)packet;
+
+  if (ntohs(ethernet_header->ether_type) == ETHERTYPE_IP)
+  {
+    LOG_INFO("confirmed this is an IPv4 packet");
+  }
+  else if (ntohs(ethernet_header->ether_type == ETHERTYPE_IPV6))
+  {
+    LOG_WARN("got an IPv6 packet, which is a surprise");
+    exit(2);
+  }
+  else
+  {
+    LOG_WARN("this doesn't look like an IP packet...");
+    exit(2);
+  }
 
   uint8_t byte_zero = packet[66];
   uint8_t byte_one = packet[67];
