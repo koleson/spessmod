@@ -73,14 +73,16 @@ int main(int argc, char **argv)
   }
 
   const u_char* packet;
-  struct pcap_pkthdr* header;
+  struct pcap_pkthdr header;
   LOG_INFO("awaiting matching packet");
 
-  packet = pcap_next(pcap, header);
+  packet = pcap_next(pcap, &header);
 
   // from here, packet and header are the relevant params.  should be able to extract.
   // kmo 10 dec 2023 13h35
-  process_packet(NULL, header, packet);
+  LOG_INFO("processing packet");
+  process_packet(NULL, &header, packet);
+
   /*
   LOG_INFO("got a packet with length [%d]", header.len);
 
