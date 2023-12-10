@@ -25,20 +25,12 @@ pcap_t* get_pcap(const int argc, const char **argv, char *errbuf) {
   if (selected_interface == NULL)
   {
     LOG_ERROR("exiting - unable to acquire interface.");
-    exit(1);
+    return NULL;
   }
 
   LOG_DEBUG("opening pcap on interface %s", selected_interface);
   pcap_t *pcap = pcap_open_live(selected_interface, BUFSIZ, promiscuous, 1000, errbuf);
-  if (pcap == NULL)
-  {
-    LOG_ERROR("Couldn't open interface %s in promiscuous mode.", selected_interface);
-    exit(2);
-  }
-  else
-  {
-    LOG_INFO("pcap open in promiscuous mode!");
-  }
+  return pcap;
 }
 
 const char *get_interface(const int argc, const char **argv, char *errbuf)

@@ -22,6 +22,11 @@ int main(const int argc, const char **argv)
 
   pcap_t* pcap = get_pcap(argc, argv, errbuf);
 
+  if (!pcap) {
+    LOG_ERROR("could not get pcap");
+    exit(1);
+  }
+
   LOG_INFO("compiling filter...");
   // acquire all modbus over TCP packets
   char *filter_expression = "tcp port 502";
