@@ -135,8 +135,8 @@ int main(int argc, char **argv)
 
   // TODO:  is this the right size for this?  VSCode very angry at `struct ip`
   // kmo 9 dec 2023 20h42
-  uint16_t source_port = tcp_header->source;
-  uint16_t dest_port = tcp_header->dest;
+  __be16 source_port = tcp_header->source;
+  __be16 dest_port = tcp_header->dest;
   LOG_INFO("source port: %d", source_port);
   LOG_INFO("destination port: %d", dest_port);
 
