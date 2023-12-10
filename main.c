@@ -135,8 +135,11 @@ int main(int argc, char **argv)
 
   // TODO:  is this the right size for this?  VSCode very angry at `struct ip`
   // kmo 9 dec 2023 20h42
-  __be16 source_port = tcp_header->source;
-  __be16 dest_port = tcp_header->dest;
+  // kernel source says 16 bits which sounds right.
+  // kmo 9 dec 20h59
+  // endianness!  kmo 9 dec 2023 21h05
+  uint16_t source_port = ntohs(tcp_header->source);
+  uint16_t dest_port = ntohs(tcp_header->dest);
   LOG_INFO("source port: %d (0x%04x)", source_port, source_port);
   LOG_INFO("destination port: %d (0x%04x)", dest_port, dest_port);
 
