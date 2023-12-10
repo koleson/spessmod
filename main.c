@@ -121,7 +121,7 @@ int main(int argc, char **argv)
   // informational only:  print protocol
   LOG_INFO("IP protocol: %01x", ip_header->ip_p);
 
-  if (ip_header->ip_p != IPPROTO_TCP)
+  if (ip_header->ip_p == IPPROTO_TCP)
   {
     LOG_INFO("confirmed packet is TCP");
   }
