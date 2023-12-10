@@ -4,6 +4,9 @@
 #include <stdbool.h>
 #include <pcap.h>
 
+#include <net/ethernet.h>
+#include <netinet/in.h>
+
 #include "log.h"
 
 // http://yuba.stanford.edu/~casado/pcap/section1.html
