@@ -2,7 +2,7 @@
 // Created by koleson on 12/10/23.
 //
 
-#include <pcap.h>
+#include <pcap/pcap.h>
 
 #ifndef PACKET_PROCESSING_H
 #define PACKET_PROCESSING_H

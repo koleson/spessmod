@@ -1,13 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdbool.h>
-#include <pcap.h>
+#include <pcap/pcap.h>
 
 #include <net/ethernet.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
-#include <netinet/tcp.h>
 
 #include "log.h"
 #include "capture_setup.h"
