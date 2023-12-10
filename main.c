@@ -195,6 +195,16 @@ int main(int argc, char **argv)
   LOG_INFO("unit: %d", unit);
   LOG_INFO("function: %d", function);
 
+  if (function == 3) {
+    LOG_INFO("modbus function: Read Holding Registers");
+    // TODO:  check if this is query or response
+    // hacky - could base on IP in subnet (1 vs non-1)
+
+    // read registers
+    // uint16_t base_register = (data[8] << 8) | data[9];
+    // uint16_t num_registers = (data[10] << 8 | data[11]);
+  }
+
   pcap_close(pcap);
   return 0;
 }
