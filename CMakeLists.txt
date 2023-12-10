@@ -3,7 +3,9 @@ include(ExternalProject)
 
 project(spessmod)
 
-add_executable(spessmod main.c)
+add_executable(spessmod main.c
+				capture_setup.c
+				capture_setup.h)
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 
 set(LIBPCAP_NAME libpcap)
