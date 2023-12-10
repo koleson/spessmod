@@ -6,6 +6,7 @@
 
 #include <net/ethernet.h>
 #include <netinet/in.h>
+#include <netinet/ip.h>
 
 #include "log.h"
 
@@ -76,14 +77,9 @@ int main(int argc, char **argv)
   packet = pcap_next(pcap, &header);
   LOG_INFO("got a packet with length [%d]", header.len);
 
-  // i think the modbus tcp IPv4 ethernet packet would be 76 bytes - could bail out early here
-  // kmo 9 dec 2023
-
-  uint8_t dest_mac[6];
-  memcpy(dest_mac, packet, 6 * sizeof(uint8_t));
-
-  uint8_t src_mac[6];
-  memcpy(dest_mac, packet + (6 * sizeof(uint8_t)), 6 * sizeof(uint8_t));
+  // following use of structs/pointer arithmetic based on:
+  // https://elf11.github.io/2017/01/22/libpcap-in-C.html
+  // kmo 9 dec 2023 20h23
 
   // bail out if packet isn't IPv4
   const struct ether_header *ethernet_header = (struct ether_header *)packet;
@@ -112,6 +108,15 @@ int main(int argc, char **argv)
            ethernet_header->ether_shost[0], ethernet_header->ether_shost[1], ethernet_header->ether_shost[2],
            ethernet_header->ether_shost[3], ethernet_header->ether_shost[4], ethernet_header->ether_shost[5]);
 
+  // informational only:  print IP addresses involved
+  const struct ip* ip_header = (struct ip*)(packet + sizeof(struct ether_header));
+  char source_ip[INET_ADDRSTRLEN];
+  char dest_ip[INET_ADDRSTRLEN];
+  inet_ntop(AF_INET, &(ip_header->ip_src), source_ip, INET_ADDRSTRLEN);
+  inet_ntop(AF_INET, &(ip_header->ip_dst), dest_ip, INET_ADDRSTRLEN);
+
+  // informational only:  print protocol
+  LOG_INFO("IP protocol: %01x", ip_header->ip_p);
 
   uint8_t byte_zero = packet[66];
   uint8_t byte_one = packet[67];
