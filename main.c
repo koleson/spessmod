@@ -81,25 +81,13 @@ int main(int argc, char **argv)
 
   uint8_t dest_mac[6];
   memcpy(dest_mac, packet, 6 * sizeof(uint8_t));
-  LOG_INFO("destination MAC: %02x:%02x:%02x:%02x:%02x:%02x",
-           dest_mac[0], dest_mac[1], dest_mac[2], dest_mac[3], dest_mac[4], dest_mac[5]);
 
   uint8_t src_mac[6];
   memcpy(dest_mac, packet + (6 * sizeof(uint8_t)), 6 * sizeof(uint8_t));
-  LOG_INFO("source MAC: %02x:%02x:%02x:%02x:%02x:%02x",
-           src_mac[0], src_mac[1], src_mac[2], src_mac[3], src_mac[4], src_mac[5]);
-  
-  // TODO: check endianness!  this probably needs arm vs x86 differentiation?
-  // kmo 9 dec 2023
-  uint16_t packet_type;
-  memcpy(&packet_type, packet + (12 * sizeof(uint8_t)), 1 * sizeof(uint16_t));
-  // byte swap for endianness
-  packet_type = (packet_type >> 8) | (packet_type << 8);
-  LOG_INFO("type: 0x%04x", packet_type);
-
 
   // bail out if packet isn't IPv4
   const struct ether_header *ethernet_header = (struct ether_header *)packet;
+  LOG_INFO("type: 0x%04x", ethernet_header->ether_type);
 
   if (ntohs(ethernet_header->ether_type) == ETHERTYPE_IP)
   {
@@ -115,6 +103,15 @@ int main(int argc, char **argv)
     LOG_WARN("this doesn't look like an IP packet...");
     exit(2);
   }
+
+  // informational only:  print MAC addresses involved
+  LOG_INFO("destination MAC: %02x:%02x:%02x:%02x:%02x:%02x",
+           ethernet_header->ether_dhost[0], ethernet_header->ether_dhost[1], ethernet_header->ether_dhost[2],
+           ethernet_header->ether_dhost[3], ethernet_header->ether_dhost[4], ethernet_header->ether_dhost[5]);
+  LOG_INFO("destination MAC: %02x:%02x:%02x:%02x:%02x:%02x",
+           ethernet_header->ether_shost[0], ethernet_header->ether_shost[1], ethernet_header->ether_shost[2],
+           ethernet_header->ether_shost[3], ethernet_header->ether_shost[4], ethernet_header->ether_shost[5]);
+
 
   uint8_t byte_zero = packet[66];
   uint8_t byte_one = packet[67];
