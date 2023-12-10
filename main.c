@@ -173,16 +173,19 @@ int main(int argc, char **argv)
   LOG_INFO("hex dump follows:");
   printf("\n\n");
   for (int byte = 0; byte < data_length; byte++) {
-    printf("%02x.", (uint8_t)data[byte]);
+    printf("%02x ", (uint8_t)data[byte]);
   }
   printf("\n\n");
 
-  // TODO:  more logic goes here
   uint16_t transaction = (data[0] << 8) | data[1];
   uint16_t protocol = (data[2] << 8) | data[3];
   uint16_t length = (data[4] << 8) | data[5];
   uint8_t unit = data[6];
   uint8_t function = data[7];
+
+  // TODO:  further interpretation of modbus data,
+  // which is conditional on function and other state.
+  // kmo 9 dec 2023 22h15
 
   // data follows
   // uint16_t checksum = (last 2 bytes)
