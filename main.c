@@ -170,7 +170,7 @@ int main(int argc, char **argv)
   
   LOG_INFO("data length: %d", data_length);
   
-  LOG_INFO("hex dump follows:")
+  LOG_INFO("hex dump follows:");
   printf("\n\n");
   for (int byte = 0; byte < data_length; byte++) {
     printf("%02x ", data[byte]);
