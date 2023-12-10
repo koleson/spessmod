@@ -138,6 +138,7 @@ int main(int argc, char **argv)
   // kernel source says 16 bits which sounds right.
   // kmo 9 dec 20h59
   // endianness!  kmo 9 dec 2023 21h05
+  uint8_t data_offset = tcp_header->doff;
   uint16_t source_port = ntohs(tcp_header->source);
   uint16_t dest_port = ntohs(tcp_header->dest);
   LOG_INFO("source port: %d (0x%04x)", source_port, source_port);
