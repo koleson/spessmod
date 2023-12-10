@@ -154,6 +154,9 @@ int main(int argc, char **argv)
     exit(2);
   }
 
+  LOG_INFO("sizes - ether %d, ip %d, tcp %d", 
+    sizeof(struct ether_header), sizeof(struct ip), sizeof(struct tcphdr));
+
   u_char* data = (u_char*)(packet + sizeof(struct ether_header) + sizeof(struct ip) + sizeof(struct tcphdr));
   uint32_t data_length = header.len - (sizeof(struct ether_header) + sizeof(struct ip) + sizeof(struct tcphdr));
   LOG_INFO("data length: %d", data_length);
