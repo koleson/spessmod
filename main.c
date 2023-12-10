@@ -131,7 +131,7 @@ int main(int argc, char **argv)
     exit(2);
   }
 
-  const struct tcphdr *tcp_header = (struct tcphdr *)(packet + sizeof(struct ether_header) + sizeof(struct ip));
+  const struct tcphdr* tcp_header = (struct tcphdr *)(packet + sizeof(struct ether_header) + sizeof(struct ip));
 
   // TODO:  is this the right size for this?  VSCode very angry at `struct ip`
   // kmo 9 dec 2023 20h42
