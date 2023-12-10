@@ -101,16 +101,12 @@ int main(int argc, char **argv)
   LOG_INFO("byte 0: 0x%02x", byte_zero);
   LOG_INFO("byte 1: 0x%02x", byte_one);
 
-
-
   // TODO:  more logic goes here
   uint16_t transaction = packet[66];
   uint16_t protocol = packet[68];
   uint16_t length = packet[70];
   uint8_t unit = packet[72];
   uint8_t function = packet[73];
-
-  
 
   // data follows
   // uint16_t checksum = (last 2 bytes)
@@ -119,8 +115,6 @@ int main(int argc, char **argv)
   LOG_INFO("length: %d", length);
   LOG_INFO("unit: %d", unit);
   LOG_INFO("function: %d", function);
-
-
 
   pcap_close(pcap);
   return 0;
