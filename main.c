@@ -114,6 +114,8 @@ int main(int argc, char **argv)
   char dest_ip[INET_ADDRSTRLEN];
   inet_ntop(AF_INET, &(ip_header->ip_src), source_ip, INET_ADDRSTRLEN);
   inet_ntop(AF_INET, &(ip_header->ip_dst), dest_ip, INET_ADDRSTRLEN);
+  LOG_INFO("Source IP: %s", source_ip);
+  LOG_INFO("Destination IP: %s", dest_ip);
 
   // informational only:  print protocol
   LOG_INFO("IP protocol: %01x", ip_header->ip_p);
