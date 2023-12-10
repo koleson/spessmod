@@ -178,9 +178,9 @@ int main(int argc, char **argv)
   printf("\n\n");
 
   // TODO:  more logic goes here
-  uint16_t transaction = ntohs((data[0] << 8) | data[1]);
-  uint16_t protocol = ntohs((data[2] << 8) | data[3]);
-  uint16_t length = ntohs((data[4] << 8) | data[5]);
+  uint16_t transaction = (data[0] << 8) | data[1];
+  uint16_t protocol = (data[2] << 8) | data[3];
+  uint16_t length = (data[4] << 8) | data[5];
   uint8_t unit = data[6];
   uint8_t function = data[7];
 
