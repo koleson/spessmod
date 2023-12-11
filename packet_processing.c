@@ -81,8 +81,8 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
   uint32_t seq = tcp_header->seq;
   uint8_t fin = tcp_header->fin;
   uint16_t tcp_checksum = tcp_header->check;
-  LOG_INFO("ack: %u - ack_seq: %u - seq: %u - fin: %u - check: %u",
-    ack, ack_seq, seq, fin, tcp_checksum);
+  LOG_INFO("ack: %u - ack_seq: %u - seq: %u - fin: %u - check: %u (0x%04x)",
+    ack, ack_seq, seq, fin, tcp_checksum, tcp_checksum);
 
   uint8_t data_offset_words = tcp_header->doff;
   uint16_t source_port = ntohs(tcp_header->source);
@@ -90,7 +90,6 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
   LOG_INFO("source port: %d (0x%04x)", source_port, source_port);
   LOG_INFO("destination port: %d (0x%04x)", dest_port, dest_port);
 
-  // replies don't have to be to port 502, it seems
   if (dest_port == 502 || source_port == 502)
   {
     LOG_INFO("confirmed port 502 as source or destination");
@@ -117,7 +116,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
   LOG_INFO("data length: %d", data_length);
 
   if (data_length == 0) {
-    LOG_INFO("no modbus data to analyze - leaving packet");
+    LOG_INFO("no modbus data to analyze - leaving packet ============\n\n");
     return;
   }
 
@@ -133,18 +132,12 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
   uint16_t length = (data[4] << 8) | data[5];
   uint8_t unit = data[6];
   uint8_t function = data[7];
-
-  // TODO:  further interpretation of modbus data,
-  // which is conditional on function and other state.
-  // kmo 9 dec 2023 22h15
-
   // data follows
   // uint16_t checksum = (last 2 bytes)
-  LOG_INFO("transaction: %d", transaction);
-  LOG_INFO("protocol: %d", protocol);
-  LOG_INFO("length: %d", length);
-  LOG_INFO("unit: %d", unit);
-  LOG_INFO("function: %d", function);
+
+  LOG_INFO("transaction: %u / protocol: %u / length: %u",
+    transaction, protocol, length);
+  LOG_INFO("unit: %u / function: %u", unit, function);
 
   if (function == 3) {
     LOG_INFO("modbus function: Read Holding Registers");
