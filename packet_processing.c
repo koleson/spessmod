@@ -107,6 +107,11 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 
   LOG_INFO("data length: %d", data_length);
 
+  if (data_length == 0) {
+    LOG_INFO("no modbus data to analyze - leaving packet");
+    return;
+  }
+
   LOG_INFO("hex dump follows:");
   printf("\n\n");
   for (int byte = 0; byte < data_length; byte++) {
