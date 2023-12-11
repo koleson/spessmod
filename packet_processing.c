@@ -80,7 +80,9 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
   uint32_t ack_seq = tcp_header->ack_seq;
   uint32_t seq = tcp_header->seq;
   uint8_t fin = tcp_header->fin;
-  LOG_INFO("ack: %u - ack_seq: %u - seq: %u- fin: %u", ack, ack_seq, seq, fin);
+  uint16_t tcp_checksum = tcp_header->check;
+  LOG_INFO("ack: %u - ack_seq: %u - seq: %u - fin: %u - check: %u",
+    ack, ack_seq, seq, fin, tcp_checksum);
 
   uint8_t data_offset_words = tcp_header->doff;
   uint16_t source_port = ntohs(tcp_header->source);
