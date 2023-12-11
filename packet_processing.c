@@ -142,3 +142,28 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
     // uint16_t num_registers = (data[10] << 8 | data[11]);
   }
 }
+
+int add_filter(pcap_t* pcap) {
+  LOG_INFO("compiling filter...");
+  // acquire all modbus over TCP packets
+  char *filter_expression = "tcp port 502";
+  struct bpf_program filter_program;
+  int optimize = 0;
+  bpf_u_int32 netmask = 0;
+
+  int compilation_result = pcap_compile(pcap, &filter_program, filter_expression, optimize, netmask);
+  if (compilation_result != 0)
+  {
+    LOG_ERROR("could not compile bpf_program from expression %s", filter_expression);
+    return 1;
+  }
+
+  int setfilter_result = pcap_setfilter(pcap, &filter_program);
+  if (setfilter_result != 0)
+  {
+    LOG_ERROR("could not set filter on pcap");
+    return 2;
+  }
+
+  return setfilter_result;
+}

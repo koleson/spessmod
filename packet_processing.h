@@ -7,6 +7,7 @@
 #ifndef PACKET_PROCESSING_H
 #define PACKET_PROCESSING_H
 
+int add_filter(pcap_t* pcap);
 void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
 
 #endif //PACKET_PROCESSING_H

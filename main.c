@@ -25,24 +25,10 @@ int main(const int argc, const char **argv)
     exit(1);
   }
 
-  LOG_INFO("compiling filter...");
-  // acquire all modbus over TCP packets
-  char *filter_expression = "tcp port 502";
-  struct bpf_program filter_program;
-  int optimize = 0;
-  bpf_u_int32 netmask = 0;
-
-  int compilation_result = pcap_compile(pcap, &filter_program, filter_expression, optimize, netmask);
-  if (compilation_result != 0)
-  {
-    LOG_ERROR("could not compile bpf_program from expression %s", filter_expression);
-    exit(2);
-  }
-
-  int setfilter_result = pcap_setfilter(pcap, &filter_program);
-  if (setfilter_result != 0)
-  {
-    LOG_ERROR("could not set filter on pcap");
+  int add_filter_result = add_filter(pcap);
+  if (add_filter_result != 0) {
+    LOG_ERROR("error applying filter to pcap");
+    exit(1);
   }
 
   // TODO:  change to -1 once we're sure we're looping well
