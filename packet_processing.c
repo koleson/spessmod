@@ -10,8 +10,13 @@
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
 
-void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet) {
-   // from here, packet and header are the relevant params.  should be able to extract.
+void print_struct_sizes() {
+  LOG_INFO("sizes - ether %lu, ip %lu, tcp %lu",
+           sizeof(struct ether_header), sizeof(struct ip), sizeof(struct tcphdr));
+}
+
+void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char* packet) {
+  // from here, packet and header are the relevant params.  should be able to extract.
   // kmo 10 dec 2023 13h35
   LOG_INFO("got a packet with length [%u] (caplen %u)", header->len, header->caplen);
 
@@ -20,7 +25,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
   // kmo 9 dec 2023 20h23
 
   // bail out if packet isn't IPv4
-  const struct ether_header *ethernet_header = (struct ether_header *)packet;
+  const struct ether_header* ethernet_header = (struct ether_header *) packet;
   LOG_INFO("type: 0x%04x", ethernet_header->ether_type);
 
   if (ntohs(ethernet_header->ether_type) == ETHERTYPE_IP)
@@ -47,7 +52,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
            ethernet_header->ether_shost[3], ethernet_header->ether_shost[4], ethernet_header->ether_shost[5]);
 
   // informational only:  print IP addresses involved
-  const struct ip* ip_header = (struct ip*)(packet + sizeof(struct ether_header));
+  const struct ip* ip_header = (struct ip *) (packet + sizeof(struct ether_header));
   char source_ip[INET_ADDRSTRLEN];
   char dest_ip[INET_ADDRSTRLEN];
   inet_ntop(AF_INET, &(ip_header->ip_src), source_ip, INET_ADDRSTRLEN);
@@ -68,7 +73,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
     return;
   }
 
-  const struct tcphdr* tcp_header = (struct tcphdr *)(packet + sizeof(struct ether_header) + sizeof(struct ip));
+  const struct tcphdr* tcp_header = (struct tcphdr *) (packet + sizeof(struct ether_header) + sizeof(struct ip));
 
   // TODO:  is this the right size for this?  VSCode very angry at `struct ip`
   // kmo 9 dec 2023 20h42
@@ -76,17 +81,17 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
   // kmo 9 dec 20h59
   // endianness!  kmo 9 dec 2023 21h05
 
-  uint16_t ack = tcp_header->ack;
-  uint32_t ack_seq = tcp_header->ack_seq;
-  uint32_t seq = tcp_header->seq;
-  uint8_t fin = tcp_header->fin;
-  uint16_t tcp_checksum = tcp_header->check;
+  const uint16_t ack = tcp_header->ack;
+  const uint32_t ack_seq = tcp_header->ack_seq;
+  const uint32_t seq = tcp_header->seq;
+  const uint8_t fin = tcp_header->fin;
+  const uint16_t tcp_checksum = tcp_header->check;
   LOG_INFO("ack: %u - ack_seq: %u - seq: %u - fin: %u - check: %u (0x%04x)",
-    ack, ack_seq, seq, fin, tcp_checksum, tcp_checksum);
+           ack, ack_seq, seq, fin, tcp_checksum, tcp_checksum);
 
-  uint8_t data_offset_words = tcp_header->doff;
-  uint16_t source_port = ntohs(tcp_header->source);
-  uint16_t dest_port = ntohs(tcp_header->dest);
+  const uint8_t data_offset_words = tcp_header->doff;
+  const uint16_t source_port = ntohs(tcp_header->source);
+  const uint16_t dest_port = ntohs(tcp_header->dest);
   LOG_INFO("source port: %d (0x%04x)", source_port, source_port);
   LOG_INFO("destination port: %d (0x%04x)", dest_port, dest_port);
 
@@ -100,46 +105,46 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
     return;
   }
 
-  LOG_INFO("sizes - ether %lu, ip %lu, tcp %lu",
-    sizeof(struct ether_header), sizeof(struct ip), sizeof(struct tcphdr));
-
-  uint8_t data_offset_bytes = data_offset_words * 4;
-  uint8_t options_length = data_offset_bytes - sizeof(struct tcphdr);
+  const uint8_t data_offset_bytes = data_offset_words * 4;
+  const uint8_t options_length = data_offset_bytes - sizeof(struct tcphdr);
   LOG_INFO("TCP Header data offset: %d bytes, %d of which are TCP options",
-    data_offset_bytes, options_length);
+           data_offset_bytes, options_length);
 
-  u_char* data = (u_char*)(packet + sizeof(struct ether_header) + sizeof(struct ip)
-    + sizeof(struct tcphdr) + (sizeof(uint8_t) * options_length));
-  uint32_t data_length = header->len - (sizeof(struct ether_header) + sizeof(struct ip)
-    + sizeof(struct tcphdr) + (sizeof(uint8_t) * options_length));
+  const u_char* data = (u_char *) (packet + sizeof(struct ether_header) + sizeof(struct ip)
+                                   + sizeof(struct tcphdr) + (sizeof(uint8_t) * options_length));
+  const uint32_t data_length = header->len - (sizeof(struct ether_header) + sizeof(struct ip)
+                                              + sizeof(struct tcphdr) + (sizeof(uint8_t) * options_length));
 
   LOG_INFO("data length: %d", data_length);
 
-  if (data_length == 0) {
+  if (data_length == 0)
+  {
     LOG_INFO("no modbus data to analyze - leaving packet ============\n\n");
     return;
   }
 
   LOG_INFO("hex dump follows:");
   printf("\n\n");
-  for (int byte = 0; byte < data_length; byte++) {
-    printf("%02x.", (uint8_t)data[byte]);
+  for (int byte = 0; byte < data_length; byte++)
+  {
+    printf("%02x.", (uint8_t) data[byte]);
   }
   printf("\n\n");
 
-  uint16_t transaction = (data[0] << 8) | data[1];
-  uint16_t protocol = (data[2] << 8) | data[3];
-  uint16_t length = (data[4] << 8) | data[5];
-  uint8_t unit = data[6];
-  uint8_t function = data[7];
+  const uint16_t transaction = (data[0] << 8) | data[1];
+  const uint16_t protocol = (data[2] << 8) | data[3];
+  const uint16_t length = (data[4] << 8) | data[5];
+  const uint8_t unit = data[6];
+  const uint8_t function = data[7];
   // data follows
   // uint16_t checksum = (last 2 bytes)
 
   LOG_INFO("transaction: %u / protocol: %u / length: %u",
-    transaction, protocol, length);
+           transaction, protocol, length);
   LOG_INFO("unit: %u / function: %u", unit, function);
 
-  if (function == 3) {
+  if (function == 3)
+  {
     LOG_INFO("modbus function: Read Holding Registers");
     // TODO:  check if this is query or response
     // hacky - could base on IP in subnet (1 vs non-1)
@@ -153,19 +158,19 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 int add_filter(pcap_t* pcap) {
   LOG_INFO("compiling filter...");
   // acquire all modbus over TCP packets
-  char *filter_expression = "tcp port 502";
+  const char* filter_expression = "tcp port 502";
   struct bpf_program filter_program;
-  int optimize = 0;
-  bpf_u_int32 netmask = 0;
+  const int optimize = 0;
+  const bpf_u_int32 netmask = 0;
 
-  int compilation_result = pcap_compile(pcap, &filter_program, filter_expression, optimize, netmask);
+  const int compilation_result = pcap_compile(pcap, &filter_program, filter_expression, optimize, netmask);
   if (compilation_result != 0)
   {
     LOG_ERROR("could not compile bpf_program from expression %s", filter_expression);
     return 1;
   }
 
-  int setfilter_result = pcap_setfilter(pcap, &filter_program);
+  const int setfilter_result = pcap_setfilter(pcap, &filter_program);
   if (setfilter_result != 0)
   {
     LOG_ERROR("could not set filter on pcap");

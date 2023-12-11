@@ -19,23 +19,25 @@ int main(const int argc, const char **argv)
   char errbuf[PCAP_ERRBUF_SIZE];
 
   pcap_t* pcap = get_pcap(argc, argv, errbuf);
-
   if (!pcap) {
     LOG_ERROR("could not get pcap");
     exit(1);
   }
 
-  int add_filter_result = add_filter(pcap);
+  const int add_filter_result = add_filter(pcap);
   if (add_filter_result != 0) {
     LOG_ERROR("error applying filter to pcap");
     exit(1);
   }
 
+  print_struct_sizes();
+
   // TODO:  change to -1 once we're sure we're looping well
-  int packets_to_capture = 25; // negative values = capture indefinitely.
+  const int packets_to_capture = 25; // negative values = capture indefinitely.
 
   pcap_loop(pcap, packets_to_capture, process_packet, NULL);
 
   pcap_close(pcap);
+
   return 0;
 }
