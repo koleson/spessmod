@@ -32,21 +32,9 @@ int main(const int argc, const char **argv)
   }
 
   // TODO:  change to -1 once we're sure we're looping well
-  int packets_to_capture = 5; // negative values = capture indefinitely.
+  int packets_to_capture = 25; // negative values = capture indefinitely.
 
   pcap_loop(pcap, packets_to_capture, process_packet, NULL);
-
-  /*
-  // one-shot
-  const u_char* packet;
-  struct pcap_pkthdr header;
-  LOG_INFO("awaiting matching packet");
-  packet = pcap_next(pcap, &header);
-
-  LOG_INFO("processing packet");
-  process_packet(NULL, &header, packet);
-  // one-shot end
-  */
 
   pcap_close(pcap);
   return 0;
