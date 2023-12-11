@@ -75,6 +75,13 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
   // kernel source says 16 bits which sounds right.
   // kmo 9 dec 20h59
   // endianness!  kmo 9 dec 2023 21h05
+  tcp_header->
+  uint16_t ack = tcp_header->ack;
+  uint32_t ack_seq = tcp_header->ack_seq;
+  uint32_t seq = tcp_header->seq;
+  uint8_t fin = tcp_header->fin;
+  LOG_INFO("ack: %d - ack_seq: %d - seq: %d - fin: %d", ack, ack_seq, seq, fin);
+
   uint8_t data_offset_words = tcp_header->doff;
   uint16_t source_port = ntohs(tcp_header->source);
   uint16_t dest_port = ntohs(tcp_header->dest);
