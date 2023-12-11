@@ -75,7 +75,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
   // kernel source says 16 bits which sounds right.
   // kmo 9 dec 20h59
   // endianness!  kmo 9 dec 2023 21h05
-  tcp_header->
+
   uint16_t ack = tcp_header->ack;
   uint32_t ack_seq = tcp_header->ack_seq;
   uint32_t seq = tcp_header->seq;
