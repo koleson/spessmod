@@ -227,8 +227,14 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
         // 1 register = 1 word = 2 bytes = 16 bits
         int words = request->word_count;
         int base_register = request->base_register;
+        uint8_t modbus_bytes = data[8];
         // base is data[8];
-        const u_char* base = &data[8];
+        // function code is data[7]
+        // byte count is data[8]
+        // first byte of modbus register data, then, is data[9].
+        // kmo 11 dec 2023 20h04
+        
+        const u_char* base = &data[9];
         for (int word = 0; word < words; word++) {
           uint16_t register_num = base_register + word;
           uint16_t value = (base[0 + (2*word)] << 8) | base[1 + (2*word)];
