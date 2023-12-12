@@ -42,8 +42,8 @@ Unit 10 (Inverter-charger) Registers
 |----------|----------------------------------------------------------------------------|-----------|----------------|-------|-----|
 | 40213    | External power control command                                             | uint8     |                |       | rw  |
 | ...      |                                                                            |           |                |       |     |
-| 40220    | External power control Maximum Discharge Power                             | uint16    | percent        |       | rw  |
-| 40221    | External power control Maximum Charge Power                                | uint16    | percent        |       |     |
+| 40220    | External power control Maximum Discharge Power                             | uint16    | percent        | 0.01  | rw  |
+| 40221    | External power control Maximum Charge Power                                | uint16    | percent        | 0.01  | rw  |
 | ...      |                                                                            |           |                |       |     |
 | 40236    | Energy at the transformer, lifetime - charging                             | uint32    | kilowatt-hours | 0.001 | r   |
 | 40237    | (40236 continued)                                                          |           |                |       |     |
@@ -122,3 +122,11 @@ Unit 10 (Inverter-charger) Registers
 786 - Absorption Exit Pending
 787 - Ground Fault
 788 - AC Good Pending 
+
+Unit 230 (Battery) Registers
+
+(To date, have not found documentation.)
+
+[ 40081 - 40092 ]
+[ 40104 - 40131 ]
+[ 40136 - 40139 ]
