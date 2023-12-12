@@ -10,12 +10,55 @@
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
 
-void print_struct_sizes() {
+struct ModbusReadRegistersRequest
+{
+  uint16_t ack_seq;
+  uint16_t unit;
+  uint16_t base_register;
+  uint16_t word_count;
+};
+
+// TODO:  extract stateful parts vs stateless parts
+
+/* request to response mapping */
+#define REQUESTS_MAP_LENGTH 5
+struct ModbusReadRegistersRequest requests[REQUESTS_MAP_LENGTH];
+static int requests_index = 0;
+
+struct ModbusReadRegistersRequest *request_for_seq(uint16_t seq)
+{
+  // since we know the circular buffer's most-recently-added entry is almost
+  // always going to be the relevant request, we could optimize by starting
+  // at `requests_index`-1 and working backwards.
+  // but, we'll only keep a small number of requests, and we're only comparing 32-bit integers,
+  // so keep it tidy by going from 0 to `requests_length`
+  for (int i = 0; i < REQUESTS_MAP_LENGTH; i++)
+  {
+    if (requests[i].ack_seq == seq)
+    {
+      return &requests[i];
+    }
+  }
+
+  return NULL;
+}
+
+/* end request to response mapping */
+
+void insert_request(struct ModbusReadRegistersRequest request)
+{
+  requests[requests_index] = request;
+  requests_index = (requests_index + 1) % REQUESTS_MAP_LENGTH;
+}
+
+void print_struct_sizes()
+{
   LOG_INFO("sizes - ether %lu, ip %lu, tcp %lu",
            sizeof(struct ether_header), sizeof(struct ip), sizeof(struct tcphdr));
 }
 
-void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char* packet) {
+void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
+{
   // from here, packet and header are the relevant params.  should be able to extract.
   // kmo 10 dec 2023 13h35
   LOG_INFO("\n====================\n");
@@ -26,7 +69,7 @@ void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char
   // kmo 9 dec 2023 20h23
 
   // bail out if packet isn't IPv4
-  const struct ether_header* ethernet_header = (struct ether_header *) packet;
+  const struct ether_header *ethernet_header = (struct ether_header *)packet;
   const uint16_t ethertype = ethernet_header->ether_type;
 
   LOG_INFO("type: 0x%04x", ethertype);
@@ -55,7 +98,7 @@ void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char
            ethernet_header->ether_shost[3], ethernet_header->ether_shost[4], ethernet_header->ether_shost[5]);
 
   // informational only:  print IP addresses involved
-  const struct ip* ip_header = (struct ip *) (packet + sizeof(struct ether_header));
+  const struct ip *ip_header = (struct ip *)(packet + sizeof(struct ether_header));
   char source_ip[INET_ADDRSTRLEN];
   char dest_ip[INET_ADDRSTRLEN];
   inet_ntop(AF_INET, &(ip_header->ip_src), source_ip, INET_ADDRSTRLEN);
@@ -76,7 +119,7 @@ void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char
     return;
   }
 
-  const struct tcphdr* tcp_header = (struct tcphdr *) (packet + sizeof(struct ether_header) + sizeof(struct ip));
+  const struct tcphdr *tcp_header = (struct tcphdr *)(packet + sizeof(struct ether_header) + sizeof(struct ip));
 
   // TODO:  is this the right size for this?  VSCode very angry at `struct ip`
   // kmo 9 dec 2023 20h42
@@ -95,7 +138,7 @@ void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char
   const uint8_t data_offset_words = tcp_header->doff;
   const uint16_t source_port = ntohs(tcp_header->source);
   const uint16_t dest_port = ntohs(tcp_header->dest);
-  LOG_INFO("source / dest port: %d (0x%04x) / %d (0x%04x)", source_port, source_port , dest_port, dest_port);
+  LOG_INFO("source / dest port: %d (0x%04x) / %d (0x%04x)", source_port, source_port, dest_port, dest_port);
 
   if (dest_port == 502 || source_port == 502)
   {
@@ -112,10 +155,8 @@ void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char
   LOG_INFO("TCP Header data offset: %d bytes, %d of which are TCP options",
            data_offset_bytes, options_length);
 
-  const u_char* data = (u_char *) (packet + sizeof(struct ether_header) + sizeof(struct ip)
-                                   + sizeof(struct tcphdr) + (sizeof(uint8_t) * options_length));
-  const uint32_t data_length = header->len - (sizeof(struct ether_header) + sizeof(struct ip)
-                                              + sizeof(struct tcphdr) + (sizeof(uint8_t) * options_length));
+  const u_char *data = (u_char *)(packet + sizeof(struct ether_header) + sizeof(struct ip) + sizeof(struct tcphdr) + (sizeof(uint8_t) * options_length));
+  const uint32_t data_length = header->len - (sizeof(struct ether_header) + sizeof(struct ip) + sizeof(struct tcphdr) + (sizeof(uint8_t) * options_length));
 
   LOG_INFO("data length: %d", data_length);
 
@@ -129,7 +170,7 @@ void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char
   printf("\n");
   for (int byte = 0; byte < data_length; byte++)
   {
-    printf("%02x.", (uint8_t) data[byte]);
+    printf("%02x.", (uint8_t)data[byte]);
   }
   printf("\n\n");
 
@@ -150,20 +191,44 @@ void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char
     LOG_INFO("modbus function: Read Holding Registers");
     uint8_t host = ntohl(ip_header->ip_src.s_addr) & 0x000000FF;
 
-    if (host == 0x01) {
+    if (host == 0x01)
+    {
       // requesting registers
-      
+
       uint16_t base_register = (data[8] << 8) | data[9];
       uint16_t word_count = (data[10] << 8) | data[11];
       LOG_INFO("PVS requesting %u words from base register %u - ack_seq %u", word_count, base_register, ack_seq);
-      /*
-       TODO:  store sequence info and base register and word count so we can match those up
-       with the response.  kmo 11 dec 2023 17h34
-      */
-    } else {
+
+      // TODO:  use a callback or something instead of hard-coding this
+      struct ModbusReadRegistersRequest request;
+      request.ack_seq = ack_seq;
+      request.unit = unit;
+      request.base_register = base_register;
+      request.word_count = word_count;
+
+      insert_request(request);
+    }
+    else
+    {
       LOG_INFO("likely response from host %u - seq %u", host, seq);
-      // TODO:  compare with past sequence/base register/word count data to establish
-      // format of data here.  kmo 11 dec 17h35
+
+      // TODO:  use a callback or something instead of hard-coding this
+
+      struct ModbusReadRegistersRequest *request = request_for_seq(seq);
+      if (request != NULL)
+      {
+        LOG_INFO("found matching request - unit %u, base register %u, words %u",
+                 request->unit, request->base_register, request->word_count);
+        // TODO:  log data (not that simple, but, yes, that)
+      }
+      else
+      {
+        LOG_WARN("couldn't find matching request - is this first packet?");
+      }
+      
+      // TODO:  in theory could clear matched request from circular buffer, but
+      // we're just going to overwrite it eventually anyways so why bother?
+      // kmo 11 dec 2023 18h59
     }
   }
   else if (function == 16)
@@ -177,10 +242,11 @@ void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char
   }
 }
 
-int add_filter(pcap_t* pcap) {
+int add_filter(pcap_t *pcap)
+{
   LOG_INFO("compiling filter...");
   // acquire all modbus over TCP packets
-  const char* filter_expression = "tcp port 502";
+  const char *filter_expression = "tcp port 502";
   struct bpf_program filter_program;
   const int optimize = 0;
   const bpf_u_int32 netmask = 0;
