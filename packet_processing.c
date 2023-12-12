@@ -18,7 +18,7 @@ void print_struct_sizes() {
 void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char* packet) {
   // from here, packet and header are the relevant params.  should be able to extract.
   // kmo 10 dec 2023 13h35
-  LOG_INFO("\n====================\n")
+  LOG_INFO("\n====================\n");
   LOG_INFO("got a packet with length [%u] (caplen %u)", header->len, header->caplen);
 
   // following use of structs/pointer arithmetic based on:
