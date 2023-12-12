@@ -165,7 +165,7 @@ void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char
       // format of data here.  kmo 11 dec 17h35
     }
   }
-  else if (function == 14)
+  else if (function == 16)
   {
     LOG_INFO("modbus function: Write Multiple Registers");
     // TODO:  implement.
