@@ -155,13 +155,13 @@ void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char
       
       uint16_t base_register = (data[8] << 8) | data[9];
       uint16_t word_count = (data[10] << 8) | data[11];
-      LOG_INFO("PVS requesting %u words from base register %u", word_count, base_register);
+      LOG_INFO("PVS requesting %u words from base register %u - ack_seq %u", word_count, base_register, ack_seq);
       /*
        TODO:  store sequence info and base register and word count so we can match those up
        with the response.  kmo 11 dec 2023 17h34
       */
     } else {
-      LOG_INFO("likely response from host %u", host);
+      LOG_INFO("likely response from host %u - seq %u", host, seq);
       // TODO:  compare with past sequence/base register/word count data to establish
       // format of data here.  kmo 11 dec 17h35
     }
