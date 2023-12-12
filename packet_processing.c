@@ -222,6 +222,18 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
         LOG_INFO("found matching request - ack_seq %u, unit %u, base register %u, words %u",
                  request->ack_seq, request->unit, request->base_register, request->word_count);
         // TODO:  log data (not that simple, but, yes, that)
+        
+        // for now, loop over words and print to console.
+        // 1 register = 1 word = 2 bytes = 16 bits
+        int words = request->word_count;
+        int base_register = request->base_register;
+        // base is data[8];
+        uint8_t* base = &data[8];
+        for (int word = 0; word < words; word++) {
+          uint16_t register_num = base_register + word;
+          uint16_t value = (base[0 + (2*word)] << 8) & base[1 + (2*word)];
+          LOG_INFO("R %u: %04x - uint16 %u", register_num, value, value);
+        }
       }
       else
       {
