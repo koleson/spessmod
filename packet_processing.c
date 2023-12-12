@@ -26,11 +26,13 @@ void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char
 
   // bail out if packet isn't IPv4
   const struct ether_header* ethernet_header = (struct ether_header *) packet;
-  LOG_INFO("type: 0x%04x", ethernet_header->ether_type);
+  const uint16_t ethertype = ethernet_header->ether_type;
+
+  LOG_INFO("type: 0x%04x", ethertype);
 
   if (ntohs(ethernet_header->ether_type) == ETHERTYPE_IP)
   {
-    LOG_INFO("confirmed this is an IPv4 packet");
+    LOG_DEBUG("confirmed this is an IPv4 packet");
   }
   else if (ntohs(ethernet_header->ether_type == ETHERTYPE_IPV6))
   {
@@ -39,7 +41,7 @@ void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char
   }
   else
   {
-    LOG_WARN("this doesn't look like an IP packet - not processing");
+    LOG_WARN("this doesn't look like an IP packet - not processing (ethertype )");
     return;
   }
 
@@ -47,7 +49,7 @@ void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char
   LOG_INFO("destination MAC: %02x:%02x:%02x:%02x:%02x:%02x",
            ethernet_header->ether_dhost[0], ethernet_header->ether_dhost[1], ethernet_header->ether_dhost[2],
            ethernet_header->ether_dhost[3], ethernet_header->ether_dhost[4], ethernet_header->ether_dhost[5]);
-  LOG_INFO("destination MAC: %02x:%02x:%02x:%02x:%02x:%02x",
+  LOG_INFO("source MAC: %02x:%02x:%02x:%02x:%02x:%02x",
            ethernet_header->ether_shost[0], ethernet_header->ether_shost[1], ethernet_header->ether_shost[2],
            ethernet_header->ether_shost[3], ethernet_header->ether_shost[4], ethernet_header->ether_shost[5]);
 
@@ -57,11 +59,11 @@ void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char
   char dest_ip[INET_ADDRSTRLEN];
   inet_ntop(AF_INET, &(ip_header->ip_src), source_ip, INET_ADDRSTRLEN);
   inet_ntop(AF_INET, &(ip_header->ip_dst), dest_ip, INET_ADDRSTRLEN);
-  LOG_INFO("Source IP: %s", source_ip);
-  LOG_INFO("Destination IP: %s", dest_ip);
+  LOG_INFO("Destination / Source IP: %s / %s", dest_ip, source_ip);
 
   // informational only:  print protocol
-  LOG_INFO("IP protocol: %01x", ip_header->ip_p);
+  const uint16_t ip_protocol = ip_header->ip_p;
+  LOG_INFO("IP protocol: %01x", ip_protocol);
 
   if (ip_header->ip_p == IPPROTO_TCP)
   {
@@ -92,8 +94,7 @@ void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char
   const uint8_t data_offset_words = tcp_header->doff;
   const uint16_t source_port = ntohs(tcp_header->source);
   const uint16_t dest_port = ntohs(tcp_header->dest);
-  LOG_INFO("source port: %d (0x%04x)", source_port, source_port);
-  LOG_INFO("destination port: %d (0x%04x)", dest_port, dest_port);
+  LOG_INFO("source / dest port: %d (0x%04x) / %d (0x%04x)", source_port, source_port , dest_port, dest_port);
 
   if (dest_port == 502 || source_port == 502)
   {
