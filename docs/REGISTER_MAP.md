@@ -74,9 +74,14 @@ Unit 10 (Inverter-charger) Registers
 2 - Autonomous Operation
 3 - AC Passthrough
 
-* 40241 - Battery Assocation
+* 40251 - Battery Assocation
+3 - House Battery Bank 1
+4 - House Battery Bank 2
+5 - House Battery Bank 3
+6 - House Battery Bank 4
+7 - House Battery Bank 5
 
-* 40242 - Inverter Status
+* 40252 - Inverter Status
 1024 - Invert
 1025 - AC Pass Through
 1026 - APS Only
@@ -95,3 +100,25 @@ Unit 10 (Inverter-charger) Registers
 1039 - AC Coupling
 1040 - Reverse Ibatt
 
+* 40253 - Charger Status
+768 - Not Charging
+769 - Bulk
+770 - Absorption
+771 - Overcharge
+772 - Equalize
+773 - Float
+774 - No Float
+775 - Constant VI
+776 - Charger Disabled
+777 - Qualifying AC
+778 - Qualifying APS
+779 - Engaging Charger
+780 - Charge Fault
+781 - Charger Suspend
+782 - AC Good
+783 - APS Good
+784 - AC Fault
+785 - Charge
+786 - Absorption Exit Pending
+787 - Ground Fault
+788 - AC Good Pending 
