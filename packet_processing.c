@@ -27,6 +27,7 @@ static int requests_index = 0;
 
 struct ModbusReadRegistersRequest *request_for_seq(uint16_t seq)
 {
+  LOG_DEBUG("looking for request with ack_seq %u", seq);
   // since we know the circular buffer's most-recently-added entry is almost
   // always going to be the relevant request, we could optimize by starting
   // at `requests_index`-1 and working backwards.
@@ -36,10 +37,11 @@ struct ModbusReadRegistersRequest *request_for_seq(uint16_t seq)
   {
     if (requests[i].ack_seq == seq)
     {
+      LOG_DEBUG("found request at index %u that matches seq %u", i, seq);
       return &requests[i];
     }
   }
-
+  
   return NULL;
 }
 
