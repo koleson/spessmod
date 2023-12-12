@@ -90,10 +90,10 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
   }
 
   // informational only:  print MAC addresses involved
-  LOG_INFO("destination MAC: %02x:%02x:%02x:%02x:%02x:%02x",
+  LOG_DEBUG("destination MAC: %02x:%02x:%02x:%02x:%02x:%02x",
            ethernet_header->ether_dhost[0], ethernet_header->ether_dhost[1], ethernet_header->ether_dhost[2],
            ethernet_header->ether_dhost[3], ethernet_header->ether_dhost[4], ethernet_header->ether_dhost[5]);
-  LOG_INFO("source MAC: %02x:%02x:%02x:%02x:%02x:%02x",
+  LOG_DEBUG("source MAC: %02x:%02x:%02x:%02x:%02x:%02x",
            ethernet_header->ether_shost[0], ethernet_header->ether_shost[1], ethernet_header->ether_shost[2],
            ethernet_header->ether_shost[3], ethernet_header->ether_shost[4], ethernet_header->ether_shost[5]);
 
@@ -107,11 +107,11 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 
   // informational only:  print protocol
   const uint16_t ip_protocol = ip_header->ip_p;
-  LOG_INFO("IP protocol: %01x", ip_protocol);
+  LOG_DEBUG("IP protocol: %01x", ip_protocol);
 
   if (ip_header->ip_p == IPPROTO_TCP)
   {
-    LOG_INFO("confirmed packet is TCP");
+    LOG_DEBUG("confirmed packet is TCP");
   }
   else
   {
@@ -142,7 +142,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 
   if (dest_port == 502 || source_port == 502)
   {
-    LOG_INFO("confirmed port 502 as source or destination");
+    LOG_DEBUG ("confirmed port 502 as source or destination");
   }
   else
   {
@@ -217,8 +217,8 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
       struct ModbusReadRegistersRequest *request = request_for_seq(seq);
       if (request != NULL)
       {
-        LOG_INFO("found matching request - unit %u, base register %u, words %u",
-                 request->unit, request->base_register, request->word_count);
+        LOG_INFO("found matching request - ack_seq %u, unit %u, base register %u, words %u",
+                 request->ack_seq, request->unit, request->base_register, request->word_count);
         // TODO:  log data (not that simple, but, yes, that)
       }
       else
