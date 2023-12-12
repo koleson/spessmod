@@ -147,7 +147,7 @@ void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char
   if (function == 3)
   {
     LOG_INFO("modbus function: Read Holding Registers");
-    uint8_t host = ip_header->ip_src.s_addr & 0x000000FF;
+    uint8_t host = ntohl(ip_header->ip_src.s_addr) & 0x000000FF;
 
     if (host == 0x01) {
       // requesting registers
