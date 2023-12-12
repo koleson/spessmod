@@ -125,7 +125,7 @@ void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char
   }
 
   LOG_INFO("hex dump follows:");
-  printf("\n\n");
+  printf("\n");
   for (int byte = 0; byte < data_length; byte++)
   {
     printf("%02x.", (uint8_t) data[byte]);
@@ -147,12 +147,32 @@ void process_packet(u_char* args, const struct pcap_pkthdr* header, const u_char
   if (function == 3)
   {
     LOG_INFO("modbus function: Read Holding Registers");
-    // TODO:  check if this is query or response
-    // hacky - could base on IP in subnet (1 vs non-1)
+    uint8_t host = ip_header->ip_src & 0x000000FF;
 
-    // read registers
-    // uint16_t base_register = (data[8] << 8) | data[9];
-    // uint16_t num_registers = (data[10] << 8 | data[11]);
+    if (host == 0x01) {
+      // requesting registers
+      
+      uint16_t base_register = (data[8] << 8) | data[9];
+      uint16_t word_count = (data[10] << 8) | data[11];
+      LOG_INFO("PVS requesting %u words from base register %u", word_count, base_register);
+      /*
+       TODO:  store sequence info and base register and word count so we can match those up
+       with the response.  kmo 11 dec 2023 17h34
+      */
+    } else {
+      LOG_INFO("likely response from host %u", host);
+      // TODO:  compare with past sequence/base register/word count data to establish
+      // format of data here.  kmo 11 dec 17h35
+    }
+  }
+  else if (function == 14)
+  {
+    LOG_INFO("modbus function: Write Multiple Registers");
+    // TODO:  implement.
+  }
+  else
+  {
+    LOG_WARN("surprised to find modbus function %u in the capture", function);
   }
 }
 
