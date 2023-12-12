@@ -238,7 +238,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
         for (int word = 0; word < words; word++) {
           uint16_t register_num = base_register + word;
           uint16_t value = (base[0 + (2*word)] << 8) | base[1 + (2*word)];
-          LOG_INFO("R %u: %04x - uint16 %u", register_num, value, value);
+          LOG_INFO("R %u: 0x%04x - uint16 %u", register_num, value, value);
         }
       }
       else
