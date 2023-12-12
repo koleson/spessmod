@@ -12,7 +12,7 @@
 
 struct ModbusReadRegistersRequest
 {
-  uint16_t ack_seq;
+  uint32_t ack_seq;
   uint16_t unit;
   uint16_t base_register;
   uint16_t word_count;
@@ -25,7 +25,7 @@ struct ModbusReadRegistersRequest
 struct ModbusReadRegistersRequest requests[REQUESTS_MAP_LENGTH];
 static int requests_index = 0;
 
-struct ModbusReadRegistersRequest *request_for_seq(uint16_t seq)
+struct ModbusReadRegistersRequest *request_for_seq(uint32_t seq)
 {
   LOG_DEBUG("looking for request with ack_seq %u", seq);
   // since we know the circular buffer's most-recently-added entry is almost
@@ -41,7 +41,7 @@ struct ModbusReadRegistersRequest *request_for_seq(uint16_t seq)
       return &requests[i];
     }
   }
-  
+
   return NULL;
 }
 
