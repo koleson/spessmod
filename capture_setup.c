@@ -16,31 +16,48 @@ const char* get_interface(const int argc, const char **argv, char *errbuf);
 
 
 pcap_t* get_pcap(const int argc, const char **argv, char *errbuf) {
-  // check whether args suggest interface or pcap file
-
-  // for now, just assume interface.
-  const char * selected_interface = get_interface(argc, argv, errbuf);
-  int promiscuous = 1;
-
-  if (selected_interface == NULL)
+  LOG_DEBUG("argc: %d", argc);
+  if (argc == 3)
   {
-    LOG_ERROR("exiting - unable to acquire interface.");
-    return NULL;
+    if ((strcmp(argv[1], "-f") == 0) || strcmp(argv[1], "--file")) {
+      // open pcap from file
+      const char* filename = argv[2];
+      pcap_t* pcap = pcap_open_offline(filename, errbuf);
+      return pcap;
+    }
+    else {
+      LOG_ERROR("incorrect arguments, confused, bailing out");
+      LOG_ERROR("(use -f or --file to specify pcap file; interface name for live capture)");
+      return NULL;
+    }
   }
+  else if (argc > 3) {
+    LOG_ERROR("too many arguments, confused, bailing out");
+      LOG_ERROR("(use -f or --file to specify pcap file; interface name for live capture)");
+      return NULL;
+  }
+  else
+  {
+    const char *selected_interface = get_interface(argc, argv, errbuf);
+    int promiscuous = 1;
 
-  LOG_DEBUG("opening pcap on interface %s", selected_interface);
-  pcap_t *pcap = pcap_open_live(selected_interface, BUFSIZ, promiscuous, 1000, errbuf);
-  return pcap;
+    if (selected_interface == NULL)
+    {
+      LOG_ERROR("exiting - unable to acquire interface.");
+      return NULL;
+    }
+
+    LOG_DEBUG("opening pcap on interface %s", selected_interface);
+    pcap_t* pcap = pcap_open_live(selected_interface, BUFSIZ, promiscuous, 1000, errbuf);
+    return pcap;
+  }
 }
 
 const char *get_interface(const int argc, const char **argv, char *errbuf)
 {
-  LOG_DEBUG("argc: %d", argc);
-  if (argc > 2)
-  {
-    LOG_ERROR("too many arguments, confused, bailing out");
-    return NULL;
-  }
+  
+  
+  
 
   bool use_first_ethernet_interface;
   char *specified_interface_name = NULL;
