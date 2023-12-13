@@ -50,7 +50,7 @@ Unit 10 (Inverter-charger) Registers
 | 40238    | Max charge power                                                           | uint16    | watts          | 1.0   | r   |
 | 40239    | Max discharge power                                                        | uint16    | watts          | 1.0   | r   |
 | 40240    | Max charge/discharge power scaling factor                                  | uint16    | -              | -     | r   |
-| 40241    | Operating Mode *                                                           | uint16    | bitmask        | -     | rw  |
+| 40241    | Operating Mode *                                                           | uint16    | enumeration    | -     | rw  |
 | 40242    | Battery sensor count                                                       | uint16    | -              | -     | r
 | 40243    | Battery sensor config mode                                                 | uint16    | bitmask?       | -     | rw  |
 | 40244    | Inverter clear fault command                                               | uint16    | bitmask?       | -     | rw  |
