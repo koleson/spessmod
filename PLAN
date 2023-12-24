@@ -1,0 +1,15 @@
+BUGS:
+- segfault when creating register map
+
+
+SHORT-TERM:
+- make register map creation happen immediately at runtime rather than waiting for the first packet
+- complete incomplete intermediate conversion methods in known_registers.c
+- test for CSV bad input data 
+  - empty fields
+
+LONG-TERM:
+- structured data extraction
+ - single-word sized data (uint16, etc)
+ - multi-word sized data (uint32, etc - read multiple registers)
+- influxdb write
