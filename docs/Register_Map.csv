@@ -1,0 +1,44 @@
+UNIT_NUMBER,REGISTER_NUMBER,NAME,DATA_TYPE,VALUE_UNIT,VALUE_SCALE,READ_WRITE
+1,40073,"Inverter-charger power module AC current - Phase A",uint16,volts,0.01,r
+1,40074,"Inverter-charger power module AC current - Phase B",uint16,volts,0.01,r
+1,40075,"Inverter-charger power module AC current - Phase C",uint16,volts,0.01,r
+1,40076,"Inverter-charger power module AC current scaling factor",sint16,-,-,r
+1,40080,"Inverter-charger power module phase voltage A",uint16,amperes,0.01,r
+1,40081,"Inverter-charger power module phase voltage B",uint16,amperes,0.01,r
+1,40082,"Inverter-charger power module phase voltage C",uint16,amperes,0.01,r
+1,40083,"Inverter-charger power module phase voltage scaling factor",uint16,-,-,r
+1,40084,"Inverter-charger power module total AC power",sint16,watts,1,r
+1,40085,"Inverter-charger power module total AC power scaling factor",sint16,-,-,r
+1,40086,"Inverter-charger power module frequency",uint16,hertz,0.01,r
+1,40087,"Inverter-charger power module frequency scaling factor",sint16,-,-,r
+1,40088,"Inverter-charger power module apparent power",sint16,volt-ampere,1,r
+1,40089,"Inverter-charger power module apparent power scaling factor",sint16,-,-,r
+1,40090,"Inverter-charger power module reactive power",sint16,volt-ampere,1,r
+1,40091,"Inverter-charger power module reactive power scaling factor",sint16,-,-,r
+1,40092,"Inverter-charger power module power factor",sint16,percent,1,r
+1,40093,"Inverter-charger power module power factor scaling factor",sint16,-,-,r
+1,40094,"Inverter-charger power module output energy (lifetime)",uint32,kWh,0.001,r
+1,40096,"Inverter-charger power module output energy (lifetime) scaling factor",sint16,-,-,r
+1,40310,"Inverter-charger power module input energy (lifetime)",uint32,kWh,0.001,r
+1,40312,"Heartbeat Timeout",uint16,seconds?,1,rw
+1,40313,"Heartbeat Counter",uint16,-,-,rw
+10,40213,"External power control command",uint8,-,-,rw
+10,40220,"External power control Maximum Discharge Power",uint16,percent,0.01,rw
+10,40221,"External power control Maximum Charge Power",uint16,percent,0.01,rw
+10,40236,"Energy at the transformer (lifetime - charging)",uint32,kilowatt-hours,0.001,r
+10,40238,"Max charge power",uint16,watts,1,r
+10,40239,"Max discharge power",uint16,watts,1,r
+10,40240,"Max charge/discharge power scale factor",uint16,-,-,r
+10,40241,"Operating Mode",uint16,enumeration,-,rw
+10,40242,"Battery sensor count",uint16,-,-,r
+10,40243,"Battery sensor config mode",uint16,bitmask?,-,rw
+10,40244,"Inverter clear fault command",uint16,bitmask?,-,rw
+10,40245,"AC PV Charge SoC Limit",uint16,percent,0.01,rw
+10,40246,"High SoC Cut Out",sint16,percent,0.01,rw
+10,40247,"Recharge SoC",sint16,percent,0.01,rw
+10,40248,"Low SoC Cut Out",sint16,percent,0.01,rw
+10,40249,"SoC Scaling Factor",sint16,-,-,r
+10,40250,"Fail-over action on loss of SunSpec Controller heartbeat",uint8,enumeration,-,rw
+10,40251,"Battery Assocation",uint16,enumeration,-,rw
+10,40252,"Inverter Status",uint16,enumeration,-,r
+10,40253,"Charger Status",uint16,enumeration,-,r
