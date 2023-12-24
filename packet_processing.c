@@ -245,6 +245,9 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
           if (register_info != NULL) {
             LOG_INFO("R %u name: %s", register_num, register_info->name);
           }
+          else {
+            LOG_INFO("R %u of U %u has no known register data!", register_num, unit);
+          }
           LOG_INFO("R %u value: 0x%04x - uint16 %u", register_num, value, value);
         }
       }
