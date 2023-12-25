@@ -10,7 +10,7 @@ void read_csv(const char* filename);
 struct KnownRegister* known_register_from_intermediate(struct KnownRegisterIntermediate*);
 /* end private forward declarations */
 
-#define MAX_KNOWN_REGISTERS 50
+#define MAX_KNOWN_REGISTERS 100
 struct KnownRegister *known_registers[MAX_KNOWN_REGISTERS];
 bool known_registers_populated = false;
 

@@ -22,6 +22,42 @@ UNIT_NUMBER,REGISTER_NUMBER,NAME,DATA_TYPE,VALUE_UNIT,VALUE_SCALE,READ_WRITE
 1,40310,"Inverter-charger power module input energy (lifetime)",uint32,kWh,0.001,r
 1,40312,"Heartbeat Timeout",uint16,seconds?,1,rw
 1,40313,"Heartbeat Counter",uint16,-,-,rw
+10,40072,"AC Current",uint16,amperes,-,r
+10,40073,"Phase A Current",uint16,amperes,-,r
+10,40074,"Phase B Current",uint16,amperes,-,r
+10,40075,"Phase C Current",uint16,amperes,-,r
+10,40076,"Inverter-charger power module AC current Scaling Factor",sint16,-,-,r
+10,40077,"Inverter-charger power module phase voltage A",uint16,volts,1,r
+10,40078,"Inverter-charger power module phase voltage B",uint16,volts,1,r
+10,40079,"Inverter-charger power module phase voltage C",uint16,volts,1,r
+10,40080,"Phase Voltage A-N",uint16,volts,1,r
+10,40081,"Phase Voltage B-N",uint16,volts,1,r
+10,40082,"Phase Voltage C-N",uint16,volts,1,r
+10,40083,"Inverter-charger power module phase voltage scaling factor",sint16,-,-,r
+10,40084,"Transformer invert power +ve is inverting",sint16,watts,1,r
+10,40085,"Inverter-charger power module total AC power scaling factor",sint16,-,-,r
+10,40086,"Transformer measured frequency",uint16,hertz,1,r
+10,40087,"Frequency scaling factor",sint16,-,-,r
+10,40088,"Inverter-charger power module apparent power",sint16,volt-ampere,1,r
+10,40089,"Inverter-charger power module apparent power scaling factor",sint16,-,-,r
+10,40090,"AC Reactive Power",sint16,volt-ampere,1,r
+10,40091,"Inverter-charger power module AC Reactive Power scaling factor",sint16,-,-,r
+10,40092,"Inverter-charger power module power factor",sint16,percent,1,r
+10,40093,"Inverter-charger power module power factor scaling factor",sint16,-,-,r
+10,40094,"Energy at the transformer (lifetime)",uint32,kWh,0.001,r
+10,40096,"Inverter-charger power module energy scaling factor",sint16,-,-,r
+10,40104,"Heat Sink Temperature",sint16,degreesC,1,r
+10,40105,"Inverter-charger power module Transformer Temperature",sint16,degreesC,1,r
+10,40106,"Inverter-charger power module Other Temperature",sint16,degreesC,1,r
+10,40107,"Inverter-charger power module Temperature scaling factor",sint16,-,-,r
+10,40108,"Inverter-charger Operating State",uint16,enumeration,-,r
+10,40109,"Inverter-charger power module vendor operating state",uint16,enumeration,-,r
+10,40110,"Event fields",uint32,bitmask,-,r
+10,40112,"Reserved for future use",uint32,-,-,r
+10,40114,"Vendor defined events",uint32,bitmask,-,r
+10,40116,"Vendor defined events",uint32,bitmask,-,r
+10,40118,"Vendor defined events",uint32,bitmask,-,r
+10,40120,"Vendor defined events",uint32,bitmask,-,r
 10,40213,"External power control command",uint8,-,-,rw
 10,40220,"External power control Maximum Discharge Power",uint16,percent,0.01,rw
 10,40221,"External power control Maximum Charge Power",uint16,percent,0.01,rw
