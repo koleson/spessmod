@@ -32,6 +32,8 @@ struct KnownRegister {
   char* name;
 };
 
+void print_known_register(const struct KnownRegister* known_register);
+void populate_known_registers();
 struct KnownRegister* register_for_unit_and_number(uint8_t unit, uint16_t number);
 
 #endif  // KNOWN_REGISTERS_H

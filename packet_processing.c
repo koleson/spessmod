@@ -65,7 +65,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
   // from here, packet and header are the relevant params.  should be able to extract.
   // kmo 10 dec 2023 13h35
   LOG_INFO("\n====================\n");
-  LOG_INFO("got a packet with length [%u] (caplen %u)", header->len, header->caplen);
+  LOG_DEBUG("got a packet with length [%u] (caplen %u)", header->len, header->caplen);
 
   // following use of structs/pointer arithmetic based on:
   // https://elf11.github.io/2017/01/22/libpcap-in-C.html
@@ -75,7 +75,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
   const struct ether_header *ethernet_header = (struct ether_header *)packet;
   const uint16_t ethertype = ethernet_header->ether_type;
 
-  LOG_INFO("type: 0x%04x", ethertype);
+  LOG_DEBUG("type: 0x%04x", ethertype);
 
   if (ntohs(ethernet_header->ether_type) == ETHERTYPE_IP)
   {
@@ -106,7 +106,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
   char dest_ip[INET_ADDRSTRLEN];
   inet_ntop(AF_INET, &(ip_header->ip_src), source_ip, INET_ADDRSTRLEN);
   inet_ntop(AF_INET, &(ip_header->ip_dst), dest_ip, INET_ADDRSTRLEN);
-  LOG_INFO("Destination / Source IP: %s / %s", dest_ip, source_ip);
+  LOG_DEBUG("Destination / Source IP: %s / %s", dest_ip, source_ip);
 
   // informational only:  print protocol
   const uint16_t ip_protocol = ip_header->ip_p;
@@ -135,17 +135,17 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
   const uint32_t seq = tcp_header->seq;
   const uint8_t fin = tcp_header->fin;
   const uint16_t tcp_checksum = tcp_header->check;
-  LOG_INFO("ack: %u - ack_seq: %u - seq: %u - fin: %u - check: %u (0x%04x)",
+  LOG_DEBUG("ack: %u - ack_seq: %u - seq: %u - fin: %u - check: %u (0x%04x)",
            ack, ack_seq, seq, fin, tcp_checksum, tcp_checksum);
 
   const uint8_t data_offset_words = tcp_header->doff;
   const uint16_t source_port = ntohs(tcp_header->source);
   const uint16_t dest_port = ntohs(tcp_header->dest);
-  LOG_INFO("source / dest port: %d (0x%04x) / %d (0x%04x)", source_port, source_port, dest_port, dest_port);
+  LOG_DEBUG("source / dest port: %d (0x%04x) / %d (0x%04x)", source_port, source_port, dest_port, dest_port);
 
   if (dest_port == 502 || source_port == 502)
   {
-    LOG_DEBUG ("confirmed port 502 as source or destination");
+    LOG_DEBUG("confirmed port 502 as source or destination");
   }
   else
   {
@@ -155,13 +155,13 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 
   const uint8_t data_offset_bytes = data_offset_words * 4;
   const uint8_t options_length = data_offset_bytes - sizeof(struct tcphdr);
-  LOG_INFO("TCP Header data offset: %d bytes, %d of which are TCP options",
+  LOG_DEBUG("TCP Header data offset: %d bytes, %d of which are TCP options",
            data_offset_bytes, options_length);
 
   const u_char *data = (u_char *)(packet + sizeof(struct ether_header) + sizeof(struct ip) + sizeof(struct tcphdr) + (sizeof(uint8_t) * options_length));
   const uint32_t data_length = header->len - (sizeof(struct ether_header) + sizeof(struct ip) + sizeof(struct tcphdr) + (sizeof(uint8_t) * options_length));
 
-  LOG_INFO("data length: %d", data_length);
+  LOG_DEBUG("data length: %d", data_length);
 
   if (data_length == 0)
   {
@@ -169,13 +169,13 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
     return;
   }
 
-  LOG_INFO("hex dump follows:");
-  printf("\n");
-  for (int byte = 0; byte < data_length; byte++)
-  {
-    printf("%02x.", (uint8_t)data[byte]);
-  }
-  printf("\n\n");
+  // LOG_DEBUG("hex dump follows:");
+  // printf("\n");
+  // for (int byte = 0; byte < data_length; byte++)
+  // {
+  //   printf("%02x.", (uint8_t)data[byte]);
+  // }
+  // printf("\n\n");
 
   const uint16_t transaction = (data[0] << 8) | data[1];
   const uint16_t protocol = (data[2] << 8) | data[3];
@@ -191,7 +191,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 
   if (function == 3)
   {
-    LOG_INFO("modbus function: Read Holding Registers");
+    LOG_DEBUG("modbus function: Read Holding Registers");
     uint8_t host = ntohl(ip_header->ip_src.s_addr) & 0x000000FF;
 
     if (host == 0x01)
@@ -213,7 +213,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
     }
     else
     {
-      LOG_INFO("likely response from host %u - seq %u", host, seq);
+      LOG_DEBUG("likely response from host %u - seq %u", host, seq);
 
       // TODO:  use a callback or something instead of hard-coding this
 
@@ -274,7 +274,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 
 int add_filter(pcap_t *pcap)
 {
-  LOG_INFO("compiling filter...");
+  LOG_DEBUG("compiling filter...");
   // acquire all modbus over TCP packets
   const char *filter_expression = "tcp port 502";
   struct bpf_program filter_program;
