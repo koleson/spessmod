@@ -10,6 +10,7 @@
 #include "log.h"
 #include "capture_setup.h"
 #include "packet_processing.h"
+#include "known_registers.h"
 
 // http://yuba.stanford.edu/~casado/pcap/section1.html
 
