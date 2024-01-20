@@ -11,12 +11,15 @@
 #include "capture_setup.h"
 #include "packet_processing.h"
 #include "known_registers.h"
+#include "influx_logger.h"
 
 // http://yuba.stanford.edu/~casado/pcap/section1.html
 
 
 int main(const int argc, const char **argv)
 {
+  // influx_log_test();
+
   populate_known_registers();
 
   char errbuf[PCAP_ERRBUF_SIZE];

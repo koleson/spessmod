@@ -1,0 +1,1 @@
+void influx_log_test();

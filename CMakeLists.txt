@@ -3,19 +3,20 @@ include(ExternalProject)
 
 project(spessmod)
 
+file(GLOB MAIN_SOURCES src/main/*.c)
+file(GLOB MAIN_HEADERS src/main/*.h)
+file(GLOB LOGGING_SOURCES src/logging/*.c)
+file(GLOB LOGGING_HEADERS src/logging/*.h)
+
 add_executable(
-	spessmod 
-	main.c
-	capture_setup.c
-	capture_setup.h
-	packet_processing.c
-	packet_processing.h
-	known_registers.c
-	known_registers.h
+	spessmod
+	${MAIN_SOURCES} 
+	${LOGGING_SOURCES}
 	)
 	
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 
+# pcap
 set(LIBPCAP_NAME pcap)
 set(LIBPCAP_GIT_URL https://github.com/the-tcpdump-group/libpcap)
 set(LIBPCAP_GIT_BRANCH libpcap-1.10)
@@ -37,8 +38,44 @@ set_target_properties(${LIBPCAP_NAME} PROPERTIES
 
 get_target_property(PCAP_LIB_FILE ${LIBPCAP_NAME} IMPORTED_LOCATION)
 get_target_property(PCAP_INCLUDE_DIR ${LIBPCAP_NAME} INTERFACE_INCLUDE_DIRECTORIES)
-target_include_directories(spessmod PRIVATE ${PCAP_INCLUDE_DIR})
 
-add_dependencies(spessmod ${LIBPCAP_NAME})
 
-target_link_libraries(spessmod PRIVATE ${PCAP_LIB_FILE})
+
+# libcurl - allows logging to influxdb via http(s) line protocol
+ExternalProject_Add(
+    curl
+    PREFIX ${CMAKE_BINARY_DIR}/external/curl
+    GIT_REPOSITORY https://github.com/curl/curl.git
+    GIT_TAG "curl-8_5_0"
+    CMAKE_ARGS 
+				-DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/external/curl 
+				-DBUILD_SHARED_LIBS=OFF 
+				-DHTTP_ONLY=ON
+				-DCURL_ENABLE_SSL=OFF -DCURL_USE_LIBPSL=OFF -DCURL_USE_LIBSSH2=OFF
+				-DUSE_LIBIDN2=OFF														# internationalized domain names
+				-DCMAKE_DISABLE_FIND_PACKAGE_ZLIB=TRUE			# lightweight/static linking currently more important				
+)
+
+set_target_properties(curl PROPERTIES
+		IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/external/curl/lib/${CMAKE_STATIC_LIBRARY_PREFIX}curl${CMAKE_STATIC_LIBRARY_SUFFIX}"
+		INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_BINARY_DIR}/external/curl/include"
+)
+
+get_target_property(CURL_LIB_FILE curl IMPORTED_LOCATION)
+get_target_property(CURL_INCLUDE_DIR curl INTERFACE_INCLUDE_DIRECTORIES)
+
+target_include_directories(spessmod PRIVATE 
+			${PCAP_INCLUDE_DIR}
+			${CURL_INCLUDE_DIR}
+			src/logging
+			src/main)
+
+add_dependencies(spessmod 
+			${LIBPCAP_NAME} 
+			curl
+)
+
+target_link_libraries(spessmod PRIVATE 
+			${PCAP_LIB_FILE}
+			${CURL_LIB_FILE}
+)
