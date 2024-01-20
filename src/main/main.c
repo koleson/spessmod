@@ -11,14 +11,19 @@
 #include "capture_setup.h"
 #include "packet_processing.h"
 #include "known_registers.h"
+
+#ifdef INFLUX_LOGGING
 #include "influx_logger.h"
+#endif // INFLUX_LOGGING
 
 // http://yuba.stanford.edu/~casado/pcap/section1.html
 
 
 int main(const int argc, const char **argv)
 {
-  // influx_log_test();
+#ifdef INFLUX_LOGGING
+  influx_log_test();
+#endif // INFLUX_LOGGING
 
   populate_known_registers();
 
@@ -27,6 +32,11 @@ int main(const int argc, const char **argv)
   pcap_t* pcap = get_pcap(argc, argv, errbuf);
   if (!pcap) {
     LOG_ERROR("could not get pcap");
+#ifdef INFLUX_LOGGING
+  LOG_INFO("INFLUX_LOGGING was defined");
+#else
+  LOG_INFO("INFLUX_LOGGING was not defined");
+#endif
     exit(1);
   }
 
@@ -44,6 +54,8 @@ int main(const int argc, const char **argv)
   pcap_loop(pcap, packets_to_capture, process_packet, NULL);
 
   pcap_close(pcap);
+
+
 
   return 0;
 }
