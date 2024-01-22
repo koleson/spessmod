@@ -257,6 +257,11 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
         struct Modbus_Response_Data* response_data = malloc(sizeof(struct Modbus_Response_Data) + length);
         memcpy(response_data, data, sizeof(struct Modbus_Response_Data) + length);
 
+        struct Modbus_Response response = {
+          &context,
+          response_data
+        };
+
         // TODO:  call ModbusResponseProcessors here.  kmo 22 jan 2024 13h29
         // free dummy copy - we don't use it yet.  kmo 22 jan 2024 13h26
         free(response_data);
