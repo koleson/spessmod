@@ -66,18 +66,16 @@ void influx_log_response(struct Modbus_Response* response) {
   // a string buffer entirely ahead of time.
   // kmo 22 jan 2024 14h26
   unsigned int register_count = response->data->byte_count / 2;    // 16 bits = 1 word = 2 bytes
+  LOG_INFO("influx_log_response:  register_count = %d", register_count);
+  
   unsigned int cursor = 0;
   while (cursor < register_count) {
-    // extract 16 bits at a time and log to register
-    // uint8_t high_byte = response->data->register_data[cursor];
-    // uint8_t low_byte = response->data->register_data[cursor+1];
-    uint16_t register_value = response->data->register_data[cursor];
-
-    // TODO:  while testing this, ensure uint16_t extracted matches
-    // value produced by high/low byte combination
-    // kmo 22 jan 2024 14h29
     uint16_t register_number = response->context->base_register + cursor;
-    LOG_INFO("influx_log_response: register %d - uint16 value %d", register_number, register_value);
+    LOG_INFO("influx_log_response: register number %d", register_number);
+
+    uint16_t register_value = response->data->register_data[cursor];
+    LOG_INFO("influx_log_response: register value %d", register_value);
+    
     cursor++;
   }
 
