@@ -49,7 +49,7 @@ void influx_log(char* data_format) {
 }
 
 void influx_log_raw(uint8_t unit, uint16_t register_num, uint16_t value) {
-  char* data_format = "raw,uint=%d reg%d=%di \%lld";
+  char* data_format = "raw,unit=%d reg%d=%di \%lld";
   char data[512];
   snprintf(data, sizeof(data), data_format, unit, register_num, value);
   influx_log(data);
