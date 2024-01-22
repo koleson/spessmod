@@ -208,7 +208,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
   const uint8_t function = data[7];
   // data follows
   // uint16_t checksum = (last 2 bytes)
-
+  LOG_INFO("pcap packet number %llu", packet_num);
   LOG_INFO("transaction: %u / protocol: %u / length: %u",
            transaction, protocol, length);
   LOG_INFO("unit: %u / function: %u", unit, function);
