@@ -23,17 +23,18 @@ int main(const int argc, const char **argv)
 {
   populate_known_registers();
 
-  char errbuf[PCAP_ERRBUF_SIZE];
-
-  pcap_t* pcap = get_pcap(argc, argv, errbuf);
-  if (!pcap) {
-    LOG_ERROR("could not get pcap");
 #ifdef INFLUX_LOGGING
   LOG_INFO("INFLUX_LOGGING was defined");
   add_response_processor(influx_log_response);
 #else
   LOG_INFO("INFLUX_LOGGING was not defined");
 #endif
+
+  char errbuf[PCAP_ERRBUF_SIZE];
+
+  pcap_t* pcap = get_pcap(argc, argv, errbuf);
+  if (!pcap) {
+    LOG_ERROR("could not get pcap");
     exit(1);
   }
 
