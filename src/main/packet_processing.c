@@ -28,15 +28,17 @@ struct ModbusReadRegistersRequest
 
 // TODO:  allow more than one packet processor
 ModbusResponseProcessor response_processors[1] = { NULL };
+
 void add_response_processor(ModbusResponseProcessor processor)
 {
   if (response_processors[0] == NULL) 
   {
     response_processors[0] = processor;
+    LOG_INFO("set function %p as response processor", processor);
   }
   else 
   {
-    LOG_ERROR("attempted to add packet processor but maximum processors reached");
+    LOG_ERROR("attempted to add response processor but maximum processors reached");
     abort();
   }
 }

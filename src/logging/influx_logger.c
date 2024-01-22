@@ -56,6 +56,6 @@ void influx_log_raw(uint8_t unit, uint16_t register_num, uint16_t value) {
   influx_log(data);
 }
 
-void influx_log_response(struct Modbus_Response*) {
-  LOG_WARN("would log response struct to influx here but it's not implemented.");
+void influx_log_response(struct Modbus_Response* response) {
+  LOG_WARN("would log response struct %p to influx here but it's not implemented.", response);
 }
