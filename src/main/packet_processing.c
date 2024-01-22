@@ -11,6 +11,10 @@
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
 
+#if INFLUX_LOGGING
+#include "influx_logger.h"
+#endif // INFLUX_LOGGING
+
 struct ModbusReadRegistersRequest
 {
   uint32_t ack_seq;
@@ -249,6 +253,10 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
             LOG_INFO("R %u of U %u has no known register data!", register_num, unit);
           }
           LOG_INFO("R %u value: 0x%04x - uint16 %u", register_num, value, value);
+          
+          #ifdef INFLUX_LOGGING
+          influx_log_raw(unit, register_num, value);
+          #endif // INFLUX_LOGGING
         }
       }
       else

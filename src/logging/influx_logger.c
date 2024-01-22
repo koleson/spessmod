@@ -3,7 +3,6 @@
 #include "log.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 
 #include <curl/curl.h>
 #include <time.h>
@@ -49,10 +48,10 @@ void influx_log(char* data_format) {
   curl_slist_free_all(headers);
 }
 
-void influx_log_raw(uint8_t unit, uint16_t register, uint16_t value) {
+void influx_log_raw(uint8_t unit, uint16_t register_num, uint16_t value) {
   char* data_format = "raw,uint=%d reg%d=%di \%lld";
   char data[512];
-  snprintf(data, sizeof(data), data_format);
+  snprintf(data, sizeof(data), data_format, unit, register_num, value);
   influx_log(data);
 }
 
