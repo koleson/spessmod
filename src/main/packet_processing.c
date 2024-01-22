@@ -27,12 +27,12 @@ struct ModbusReadRegistersRequest
 };
 
 // TODO:  allow more than one packet processor
-ModbusResponseProcessor packet_processors[1] = { NULL };
+ModbusResponseProcessor response_processors[1] = { NULL };
 void add_response_processor(ModbusResponseProcessor processor)
 {
-  if (packet_processors[0] == NULL) 
+  if (response_processors[0] == NULL) 
   {
-    packet_processors[0] = processor;
+    response_processors[0] = processor;
   }
   else 
   {
@@ -253,7 +253,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
           request->base_register    // base_register
         };
 
-        // dummy copy - we don't use it yet.  kmo 22 jan 2024 13h26
+        
         struct Modbus_Response_Data* response_data = malloc(sizeof(struct Modbus_Response_Data) + length);
         memcpy(response_data, data, sizeof(struct Modbus_Response_Data) + length);
 
@@ -262,8 +262,9 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
           response_data
         };
 
-        // TODO:  call ModbusResponseProcessors here.  kmo 22 jan 2024 13h29
-        // free dummy copy - we don't use it yet.  kmo 22 jan 2024 13h26
+        // TODO:  allow for variable number of response_processors (including zero)
+        response_processors[0](&response);
+        
         free(response_data);
               
         // for now, loop over words and print to console.
