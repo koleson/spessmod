@@ -248,14 +248,17 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
                  request->ack_seq, request->unit, request->base_register, request->word_count);
 
 
+        LOG_DEBUG("assembling context");
         struct Modbus_Response_Context context = {
           packet_num,               // pcap_packet_number
           request->base_register    // base_register
         };
-
+        LOG_DEBUG("context assembled");
         
+        LOG_DEBUG("assembling response_data");
         struct Modbus_Response_Data* response_data = malloc(sizeof(struct Modbus_Response_Data) + length);
         memcpy(response_data, data, sizeof(struct Modbus_Response_Data) + length);
+        LOG_DEBUG("response_data logged");
 
         struct Modbus_Response response = {
           &context,
@@ -263,8 +266,9 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
         };
 
         // TODO:  allow for variable number of response_processors (including zero)
+        LOG_DEBUG("response_processors[0] about to be called");
         response_processors[0](&response);
-        
+        LOG_DEBUG("response_processors[0] called");
         free(response_data);
               
         // for now, loop over words and print to console.
