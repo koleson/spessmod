@@ -35,12 +35,12 @@ void influx_log(char* data) {
 
   response = curl_easy_perform(curl);
   if (response != CURLE_OK) {
-    LOG_ERROR("test HTTP request failed");
+    LOG_ERROR("influx HTTP request failed (%d)", response);
   } else {
     LOG_INFO("test http request succeeded!");
     uint16_t http_code;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
-    LOG_INFO("http response status %d", http_code);
+    LOG_INFO("influx http response status %d", http_code);
   }
 
   curl_easy_cleanup(curl);
