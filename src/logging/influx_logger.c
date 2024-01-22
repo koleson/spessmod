@@ -24,7 +24,7 @@ void influx_log(char* data) {
   int64_t timestamp_ns = ((int64_t)ts.tv_sec * 1000000000) + ts.tv_nsec;
   snprintf(data_plus_ts, sizeof(data_plus_ts), "%s %lld", data, timestamp_ns);
   const char* url = INFLUX_URL;
-  
+  LOG_INFO("influx data plus timestamp: %s", data_plus_ts);
   struct curl_slist *headers = NULL;
   headers = curl_slist_append(headers, INFLUX_TOKEN); 
   
