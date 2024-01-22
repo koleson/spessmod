@@ -21,7 +21,7 @@ struct Modbus_Response_Data {
   uint8_t unit;
   uint8_t function_code;
   uint8_t byte_count;
-  uint16_t* register_data;
+  uint16_t register_data[];
 };
 
 struct Modbus_Response {
