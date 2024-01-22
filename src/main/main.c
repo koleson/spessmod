@@ -21,11 +21,11 @@
 
 int main(const int argc, const char **argv)
 {
+  populate_known_registers();
+  
 #ifdef INFLUX_LOGGING
   influx_log_test();
 #endif // INFLUX_LOGGING
-
-  populate_known_registers();
 
   char errbuf[PCAP_ERRBUF_SIZE];
 
