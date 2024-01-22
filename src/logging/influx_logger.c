@@ -52,6 +52,7 @@ void influx_log_raw(uint8_t unit, uint16_t register_num, uint16_t value) {
   char* data_format = "raw,unit=%d reg%d=%di \%lld";
   char data[512];
   snprintf(data, sizeof(data), data_format, unit, register_num, value);
+  DEBUG_INFO("influx_log_raw: %s", data);
   influx_log(data);
 }
 
