@@ -37,10 +37,9 @@ void influx_log(char* data) {
   if (response != CURLE_OK) {
     LOG_ERROR("influx HTTP request failed (%d)", response);
   } else {
-    LOG_INFO("test http request succeeded!");
     uint16_t http_code;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
-    LOG_INFO("influx http response status %d", http_code);
+    LOG_INFO("http request succeeded!  influx http response status %d", http_code);
   }
 
   curl_easy_cleanup(curl);
@@ -58,4 +57,7 @@ void influx_log_raw(uint8_t unit, uint16_t register_num, uint16_t value) {
 
 void influx_log_response(struct Modbus_Response* response) {
   LOG_WARN("would log response struct %p to influx here but it's not implemented.", response);
+  LOG_INFO("packet function code should be 3 - is %d", response->data->function_code);
+  LOG_INFO("unit number: %d, base register: %d", response->data->unit, response->context->base_register);
+
 }
