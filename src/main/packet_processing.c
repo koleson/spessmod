@@ -6,6 +6,9 @@
 #include "log.h"
 #include "known_registers.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 #include <net/ethernet.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
@@ -80,6 +83,9 @@ void print_struct_sizes()
 
 void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 {
+  static int packet_num = 0;
+
+  packet_num++;
   // from here, packet and header are the relevant params.  should be able to extract.
   // kmo 10 dec 2023 13h35
   LOG_INFO("\n====================\n");
@@ -240,8 +246,21 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
       {
         LOG_INFO("found matching request - ack_seq %u, unit %u, base register %u, words %u",
                  request->ack_seq, request->unit, request->base_register, request->word_count);
-        // TODO:  log data (not that simple, but, yes, that)
-        
+
+
+        struct Modbus_Response_Context context = {
+          packet_num,               // pcap_packet_number
+          request->base_register    // base_register
+        };
+
+        // dummy copy - we don't use it yet.  kmo 22 jan 2024 13h26
+        struct Modbus_Response_Data* response_data = malloc(sizeof(struct Modbus_Response_Data) + length);
+        memcpy(response_data, data, sizeof(struct Modbus_Response_Data) + length);
+
+        // TODO:  call ModbusResponseProcessors here.  kmo 22 jan 2024 13h29
+        // free dummy copy - we don't use it yet.  kmo 22 jan 2024 13h26
+        free(response_data);
+              
         // for now, loop over words and print to console.
         // 1 register = 1 word = 2 bytes = 16 bits
         int words = request->word_count;
