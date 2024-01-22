@@ -64,3 +64,7 @@ void influx_log_test() {
 
   LOG_INFO("CURL TEST OVER");
 }
+
+void influx_log_response(struct Modbus_Response*) {
+  LOG_WARN("would log response struct to influx here but it's not implemented.");
+}

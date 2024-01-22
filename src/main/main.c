@@ -34,6 +34,7 @@ int main(const int argc, const char **argv)
     LOG_ERROR("could not get pcap");
 #ifdef INFLUX_LOGGING
   LOG_INFO("INFLUX_LOGGING was defined");
+  add_response_processor(influx_log_response);
 #else
   LOG_INFO("INFLUX_LOGGING was not defined");
 #endif

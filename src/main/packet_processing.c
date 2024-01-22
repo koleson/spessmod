@@ -23,6 +23,20 @@ struct ModbusReadRegistersRequest
   uint16_t word_count;
 };
 
+// TODO:  allow more than one packet processor
+ModbusResponseProcessor packet_processors[1] = { NULL };
+void add_response_processor(ModbusResponseProcessor processor)
+{
+  if (packet_processors[0] == NULL) 
+  {
+    packet_processors[0] = processor;
+  }
+  else 
+  {
+    LOG_ERROR("attempted to add packet processor but maximum processors reached");
+  }
+}
+
 // TODO:  extract stateful parts vs stateless parts
 
 /* request to response mapping */
