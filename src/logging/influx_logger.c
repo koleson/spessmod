@@ -56,8 +56,30 @@ void influx_log_raw(uint8_t unit, uint16_t register_num, uint16_t value) {
 }
 
 void influx_log_response(struct Modbus_Response* response) {
+  LOG_INFO("==== start influx_log_response");
   LOG_WARN("would log response struct %p to influx here but it's not implemented.", response);
   LOG_INFO("packet function code should be 3 - is %d", response->data->function_code);
   LOG_INFO("unit number: %d, base register: %d", response->data->unit, response->context->base_register);
+  char* data_prefix = "modbus,unit=%d ";
 
+  // we know the max length of register number and uint16_t, we could pre-allocate
+  // a string buffer entirely ahead of time.
+  // kmo 22 jan 2024 14h26
+  unsigned int register_count = response->data->byte_count / 2;    // 16 bits = 1 word = 2 bytes
+  unsigned int cursor = 0;
+  while (cursor < register_count) {
+    // extract 16 bits at a time and log to register
+    uint8_t high_byte = response->data->register_data[cursor];
+    uint8_t low_byte = response->data->register_data[cursor+1];
+    uint16_t register_value = response->data->register_data[cursor];
+
+    // TODO:  while testing this, ensure uint16_t extracted matches
+    // value produced by high/low byte combination
+    // kmo 22 jan 2024 14h29
+    uint16_t register_number = response->context->base_register + cursor;
+    LOG_INFO("influx_log_response: register %d - uint16 value %d", register_number, register_value);
+
+  }
+
+  LOG_INFO("==== end influx_log_response");
 }
