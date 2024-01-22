@@ -242,8 +242,6 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
     {
       LOG_DEBUG("likely response from host %u - seq %u", host, seq);
 
-      // TODO:  use a callback or something instead of hard-coding this
-
       struct ModbusReadRegistersRequest *request = request_for_seq(seq);
       if (request != NULL)
       {
@@ -255,8 +253,9 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
           request->base_register    // base_register
         };
         
-        struct Modbus_Response_Data* response_data = malloc(sizeof(struct Modbus_Response_Data) + length);
-        memcpy(response_data, data, sizeof(struct Modbus_Response_Data) + length);
+        const uint8_t byte_count = data[8];
+        struct Modbus_Response_Data* response_data = malloc(sizeof(struct Modbus_Response_Data) + byte_count);
+        memcpy(response_data, data, sizeof(struct Modbus_Response_Data) + byte_count);
 
         struct Modbus_Response response = {
           &context,
