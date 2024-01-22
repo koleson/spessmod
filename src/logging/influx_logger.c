@@ -58,7 +58,7 @@ void influx_log_raw(uint8_t unit, uint16_t register_num, uint16_t value) {
 
 void influx_log_test() {
   LOG_INFO("CURL TEST");
-  char* test_data_format = "test,unit=127 reg12345=32767i,reg12346=32766i %lld";
+  char* test_data_format = "test,unit=127 reg12345=32767i,reg12346=32766i";
 
   influx_log(test_data_format);
 
