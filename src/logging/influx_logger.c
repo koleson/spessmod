@@ -61,17 +61,16 @@ void influx_log_response(struct Modbus_Response* response) {
   char* data_prefix = "modbus,unit=%d ";
 
   // we know the max length of register number and uint16_t (both max 65535, so 5 digits),
-  // we could pre-allocate a string buffer entirely ahead of time.
+  // we can/do allocate the string buffer entirely ahead of time.
   // fmt regXXXXX=XXXXXi, is 16 bytes
   // kmo 22 jan 2024 14h26
-
   
 
   unsigned int register_count = response->data->byte_count / 2;    // 16 bits = 1 word = 2 bytes
   LOG_INFO("influx_log_response:  register_count = %d", register_count);
   
   char register_values_string[16 * register_count];
-  char* register_values_string_cursor = register_values_string;
+  // char* register_values_string_cursor = register_values_string;
   
   unsigned int cursor = 0;
   while (cursor < register_count) {
@@ -80,17 +79,19 @@ void influx_log_response(struct Modbus_Response* response) {
 
     uint16_t register_value = response->data->register_data[cursor];
     LOG_INFO("influx_log_response: register value %d", register_value);
-    snprintf(register_values_string_cursor, 15, "reg%d=%di", register_number, register_value);
-    register_values_string_cursor += 15;
+    char this_pair[16];
+    
+    snprintf(this_pair, 15, "reg%d=%di", register_number, register_value);
 
     // if not last register/value pair, add a comma
-    if (cursor < register_count - 1) {
-      sprintf(register_values_string_cursor, ",");
-      register_values_string_cursor++;
+    if (cursor < (register_count - 1)) {
+      strcat(this_pair, ",");
     }
+
+    strcat(register_values_string, this_pair);
+
     cursor++;
 
-    register_values_string_cursor[0] = '\0';    // will get overwritten by next iteration if necessary
     LOG_DEBUG("current register/values string: %s", register_values_string);
   }
 
