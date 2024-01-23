@@ -87,8 +87,8 @@ void influx_log_response(struct Modbus_Response* response) {
     uint16_t register_number = response->context->base_register + cursor;
     uint16_t register_value = response->data->register_data[cursor];
     
-    char this_pair[16];
-    snprintf(this_pair, 15, "reg%d=%di", register_number, register_value);
+    char this_pair[32];
+    snprintf(this_pair, 31, "reg%d=%di", register_number, register_value);
 
     // if not last register/value pair, add a comma
     if (cursor < (register_count - 1)) {
