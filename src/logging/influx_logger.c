@@ -81,7 +81,13 @@ void influx_log_response(struct Modbus_Response* response) {
   unsigned int register_count = response->data->byte_count / 2;    // 16 bits = 1 word = 2 bytes
   LOG_INFO("influx_log_response:  register_count = %d", register_count);
   
-
+  LOG_INFO("hex register data follows: \n");
+  for (int reg = 0; reg < register_count; reg++)
+  {
+    printf("%x ", (uint16_t)response->data->register_data[reg]);
+  }
+  printf("\n\n");
+  
   unsigned int register_values_string_maxlen = 32 * register_count;
   char register_values_string[register_values_string_maxlen];
   
