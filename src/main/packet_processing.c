@@ -307,6 +307,8 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
       }
       else
       {
+        // NB:  we are hitting this code in practice.  the non-matches are not happening in clusters.
+        // kmo 23 jan 2024 13h50
         LOG_WARN("couldn't find matching request for packet #%d - is this first packet?", packet_num);
       }
       
