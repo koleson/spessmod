@@ -69,7 +69,7 @@ void influx_log_response(struct Modbus_Response* response) {
 
   const uint8_t data_prefix_maxlen = 32;
   char data_prefix[data_prefix_maxlen];
-  snprintf(data_prefix, data_prefix_maxlen, "modbus,unit=%d", response->data->unit);
+  snprintf(data_prefix, data_prefix_maxlen, "modbus_raw_uint16,unit=%d", response->data->unit);
   // we know the max length of register number and uint16_t (both max 65535, so 5 digits),
   // we can/do allocate the string buffer entirely ahead of time.
   // fmt regXXXXX=XXXXXi, is 16 bytes
