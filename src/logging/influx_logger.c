@@ -41,6 +41,11 @@ void influx_log(char* data) {
     uint16_t http_code;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
     LOG_INFO("http request succeeded!  influx http response status %d", http_code);
+    if (http_code != 204) {
+      LOG_WARN("unexpected influxdb http response code %d on write", http_code);
+      // for now, abort for debugging
+      abort();
+    }
   }
 
   curl_easy_cleanup(curl);
