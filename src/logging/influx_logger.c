@@ -122,7 +122,9 @@ void influx_log_response(struct Modbus_Response* response) {
   //snprintf(full_data, full_data_maxlen, "%s %s", data_prefix, register_values_string);
   LOG_INFO("influxdb line protocol without timestamp: %s", full_data);
 
-  influx_log(full_data);
+  // FIXME:  disabled until register data is accurate.
+  // kmo 22 jan 2024 17h38
+  // influx_log(full_data);
 
   LOG_INFO("==== end influx_log_response");
 }
