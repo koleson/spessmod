@@ -69,6 +69,7 @@ void influx_log_response(struct Modbus_Response* response) {
 
   const uint8_t data_prefix_maxlen = 64;
   char data_prefix[data_prefix_maxlen];
+  memset(data_prefix, '\0', sizeof(data_prefix));
   snprintf(data_prefix, data_prefix_maxlen, "modbus_raw_uint16,unit=%d", response->data->unit);
   LOG_INFO("data prefix: %s", data_prefix);
 
@@ -90,6 +91,7 @@ void influx_log_response(struct Modbus_Response* response) {
     uint16_t register_value = response->data->register_data[cursor];
     
     char this_pair[32];
+    memset(this_pair, '\0', sizeof(this_pair));
     snprintf(this_pair, 31, "reg%d=%di", register_number, register_value);
 
     // if not last register/value pair, add a comma
@@ -106,8 +108,10 @@ void influx_log_response(struct Modbus_Response* response) {
 
   unsigned int full_data_maxlen = data_prefix_maxlen + register_values_string_maxlen;
   char full_data[full_data_maxlen];
+  memset(full_data, '\0', sizeof(full_data));
+
   strcat(full_data, data_prefix);
-  strcat(" ");
+  strcat(full_data, " ");
   strcat(full_data, register_values_string);
   //snprintf(full_data, full_data_maxlen, "%s %s", data_prefix, register_values_string);
   LOG_INFO("influxdb line protocol without timestamp: %s", full_data);
