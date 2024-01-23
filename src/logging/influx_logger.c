@@ -48,30 +48,32 @@ void influx_log(char* data) {
   curl_slist_free_all(headers);
 }
 
+// TODO:  remove this once `influx_log_response` is proven
+// kmo 22 jan 2024 16h01
 void influx_log_raw(uint8_t unit, uint16_t register_num, uint16_t value) {
-  char* data_format = "raw,unit=%d reg%d=%di";
-  char data[512];
-  snprintf(data, sizeof(data), data_format, unit, register_num, value);
-  LOG_INFO("influx_log_raw: %s", data);
-  influx_log(data);
+  // char* data_format = "raw,unit=%d reg%d=%di";
+  // char data[512];
+  // snprintf(data, sizeof(data), data_format, unit, register_num, value);
+  // LOG_INFO("influx_log_raw: %s", data);
+  // influx_log(data);
 }
 
 void influx_log_response(struct Modbus_Response* response) {
   LOG_INFO("==== start influx_log_response");
   LOG_INFO("unit number: %d, base register: %d", response->data->unit, response->context->base_register);
-  char* data_prefix = "modbus,unit=%d ";
+  char* data_prefix = "modbus,unit=%d";
 
   // we know the max length of register number and uint16_t (both max 65535, so 5 digits),
   // we can/do allocate the string buffer entirely ahead of time.
   // fmt regXXXXX=XXXXXi, is 16 bytes
   // kmo 22 jan 2024 14h26
   
-
   unsigned int register_count = response->data->byte_count / 2;    // 16 bits = 1 word = 2 bytes
   LOG_INFO("influx_log_response:  register_count = %d", register_count);
   
-  char register_values_string[16 * register_count];
-  // char* register_values_string_cursor = register_values_string;
+
+  unsigned int register_values_string_maxlen = 16 * register_count;
+  char register_values_string[register_values_string_maxlen];
   
   unsigned int cursor = 0;
   while (cursor < register_count) {
@@ -95,6 +97,13 @@ void influx_log_response(struct Modbus_Response* response) {
 
     LOG_DEBUG("current register/values string: %s", register_values_string);
   }
+
+  unsigned int full_data_maxlen = strlen(data_prefix) + register_values_string_maxlen;
+  char full_data[full_data_maxlen];
+  snprintf(full_data, full_data_maxlen, "%s %s", data_prefix, register_values_string);
+  LOG_INFO("influxdb line protocol without timestamp: %s", full_data);
+  
+  influx_log(full_data);
 
   LOG_INFO("==== end influx_log_response");
 }
