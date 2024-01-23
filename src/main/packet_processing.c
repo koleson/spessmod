@@ -307,7 +307,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
       }
       else
       {
-        LOG_WARN("couldn't find matching request - is this first packet?");
+        LOG_WARN("couldn't find matching request for packet #%d - is this first packet?", packet_num);
       }
       
       // TODO:  in theory could clear matched request from circular buffer, but
