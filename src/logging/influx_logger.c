@@ -84,10 +84,10 @@ void influx_log_response(struct Modbus_Response* response) {
   LOG_INFO("hex register data follows: \n");
   for (int reg = 0; reg < register_count; reg++)
   {
-    printf("%x ", (uint16_t)response->data->register_data[reg]);
+    printf("%04x ", (uint16_t)response->data->register_data[reg]);
   }
   printf("\n\n");
-  
+
   unsigned int register_values_string_maxlen = 32 * register_count;
   char register_values_string[register_values_string_maxlen];
   
