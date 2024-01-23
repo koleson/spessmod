@@ -106,7 +106,10 @@ void influx_log_response(struct Modbus_Response* response) {
 
   unsigned int full_data_maxlen = data_prefix_maxlen + register_values_string_maxlen;
   char full_data[full_data_maxlen];
-  snprintf(full_data, full_data_maxlen, "%s %s", data_prefix, register_values_string);
+  strcat(full_data, data_prefix);
+  strcat(" ");
+  strcat(full_data, register_values_string);
+  //snprintf(full_data, full_data_maxlen, "%s %s", data_prefix, register_values_string);
   LOG_INFO("influxdb line protocol without timestamp: %s", full_data);
 
   influx_log(full_data);
