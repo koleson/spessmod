@@ -14,7 +14,7 @@ void influx_log(char* data) {
 
   curl = curl_easy_init();
   if (!curl) {
-    LOG_DEBUG("hi");
+    LOG_ERROR("could not initialize curl");
     exit(1);
   }
   
@@ -81,7 +81,7 @@ void influx_log_response(struct Modbus_Response* response) {
   LOG_INFO("influx_log_response:  register_count = %d", register_count);
   
 
-  unsigned int register_values_string_maxlen = 16 * register_count;
+  unsigned int register_values_string_maxlen = 32 * register_count;
   char register_values_string[register_values_string_maxlen];
   
   unsigned int cursor = 0;
