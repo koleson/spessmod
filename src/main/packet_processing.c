@@ -196,13 +196,13 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
     return;
   }
 
-  // LOG_DEBUG("hex dump follows:");
-  // printf("\n");
-  // for (int byte = 0; byte < data_length; byte++)
-  // {
-  //   printf("%02x.", (uint8_t)data[byte]);
-  // }
-  // printf("\n\n");
+  LOG_DEBUG("hex dump follows:");
+  printf("\n");
+  for (int byte = 0; byte < data_length; byte++)
+  {
+    printf("%02x.", (uint8_t)data[byte]);
+  }
+  printf("\n\n");
 
   const uint16_t transaction = (data[0] << 8) | data[1];
   const uint16_t protocol = (data[2] << 8) | data[3];
