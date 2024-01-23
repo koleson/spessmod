@@ -63,7 +63,7 @@ void influx_log_response(struct Modbus_Response* response) {
   LOG_INFO("unit number: %d, base register: %d", response->data->unit, response->context->base_register);
 
   const uint8_t data_prefix_maxlen = 32;
-  char* data_prefix[data_prefix_maxlen];
+  char data_prefix[data_prefix_maxlen];
   snprintf(data_prefix, data_prefix_maxlen, "modbus,unit=%d", response->data->unit);
   // we know the max length of register number and uint16_t (both max 65535, so 5 digits),
   // we can/do allocate the string buffer entirely ahead of time.
@@ -97,7 +97,7 @@ void influx_log_response(struct Modbus_Response* response) {
     LOG_DEBUG("current register/values string: %s", register_values_string);
   }
 
-  unsigned int full_data_maxlen = strlen(data_prefix) + register_values_string_maxlen;
+  unsigned int full_data_maxlen = data_prefix_maxlen + register_values_string_maxlen;
   char full_data[full_data_maxlen];
   snprintf(full_data, full_data_maxlen, "%s %s", data_prefix, register_values_string);
   LOG_INFO("influxdb line protocol without timestamp: %s", full_data);
