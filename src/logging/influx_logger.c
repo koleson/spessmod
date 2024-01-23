@@ -103,7 +103,7 @@ void influx_log_response(struct Modbus_Response* response) {
 
     cursor++;
 
-    LOG_DEBUG("current register/values string: %s", register_values_string);
+    // LOG_DEBUG("current register/values string: %s", register_values_string);
   }
 
   unsigned int full_data_maxlen = data_prefix_maxlen + register_values_string_maxlen;
