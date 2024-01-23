@@ -258,12 +258,12 @@ char* string_for_data_type(enum RegisterDataType data_type) {
 }
 
 void print_known_register(const struct KnownRegister* known_register) {
-  printf("known reg %u on unit %u: %s\n", 
-    known_register->register_number, known_register->unit_number, known_register->name);
-  printf("data: type %s, value_unit: %s, value_scale: 10^%u, readable: %s, writeable: %s\n",
-    string_for_data_type(known_register->data_type), 
-    string_for_value_unit(known_register->value_unit), 
-    known_register->scale_factor,
-    (known_register->readable ? "true" : "false"), 
-    (known_register->writeable ? "true" : "false"));
+  LOG_DEBUG("known reg %u on unit %u: %s\n", 
+  known_register->register_number, known_register->unit_number, known_register->name);
+  LOG_DEBUG("data: type %s, value_unit: %s, value_scale: 10^%u, readable: %s, writeable: %s\n",
+  string_for_data_type(known_register->data_type), 
+  string_for_value_unit(known_register->value_unit), 
+  known_register->scale_factor,
+  (known_register->readable ? "true" : "false"), 
+  (known_register->writeable ? "true" : "false"));
 }
