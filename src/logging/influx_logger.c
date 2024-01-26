@@ -56,16 +56,6 @@ void influx_log(char* data) {
   curl_slist_free_all(headers);
 }
 
-// TODO:  remove this once `influx_log_response` is proven
-// kmo 22 jan 2024 16h01
-void influx_log_raw(uint8_t unit, uint16_t register_num, uint16_t value) {
-  char* data_format = "raw,unit=%d reg%d=%di";
-  char data[512];
-  snprintf(data, sizeof(data), data_format, unit, register_num, value);
-  LOG_INFO("influx_log_raw: %s", data);
-  influx_log(data);
-}
-
 void influx_log_response(struct Modbus_Response* response) {
   LOG_INFO("==== start influx_log_response");
 
