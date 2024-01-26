@@ -1,9 +1,10 @@
-BUGS:
-- segfault when creating register map
+RECENTLY COMPLETED:
+- make register map creation happen immediately at runtime rather than waiting for the first packet
 
+BUGS:
+- segfault when creating register map (it appears this was a bug in arch linux for arm 32-bit)
 
 SHORT-TERM:
-- make register map creation happen immediately at runtime rather than waiting for the first packet
 - complete incomplete intermediate conversion methods in known_registers.c
 - test for CSV bad input data 
   - empty fields
@@ -12,4 +13,4 @@ LONG-TERM:
 - structured data extraction
  - single-word sized data (uint16, etc)
  - multi-word sized data (uint32, etc - read multiple registers)
-- influxdb write
+- influxdb write (IN PROGRESS)
