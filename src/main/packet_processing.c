@@ -197,12 +197,12 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
   }
 
   LOG_DEBUG("hex dump follows:");
-  printf("\n");
+  // printf("\n");
   for (int byte = 0; byte < data_length; byte++)
   {
-    printf("%02x.", (uint8_t)data[byte]);
+    // printf("%02x.", (uint8_t)data[byte]);
   }
-  printf("\n\n");
+  // printf("\n\n");
 
   const uint16_t transaction = (data[0] << 8) | data[1];
   const uint16_t protocol = (data[2] << 8) | data[3];
@@ -254,25 +254,18 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
         };
         
         const uint8_t byte_count = data[8];
+
+        // we cannot simply put the packet data in with memset - uint16s need correct byte order.
+        // kmo 25 jan 2024 - 19h39
         struct Modbus_Response_Data* response_data = malloc(sizeof(struct Modbus_Response_Data) + byte_count);
+        response_data->transaction = transaction;
+        response_data->protocol = protocol;
+        response_data->length = length;
+        response_data->unit = unit;
+        response_data->function_code = function;
+        response_data->byte_count = byte_count; 
+        // register_data populated in loop below
         
-        // FIXME:  because the values span multiple bytes,
-        // network vs host byte order matters here.  kmo 22 jan 20214 17h32
-        memcpy(response_data, data, sizeof(struct Modbus_Response_Data) + byte_count);
-
-        struct Modbus_Response response = {
-          &context,
-          response_data
-        };
-
-        // TODO:  allow for variable number of response_processors (including zero)
-        LOG_DEBUG("response_processors[0] about to be called");
-        if (response_processors[0] == NULL) {
-          LOG_ERROR("response processor is NULL - calling that will not be fun");
-        }
-        response_processors[0](&response);
-        LOG_DEBUG("response_processors[0] called");
-        free(response_data);
               
         // for now, loop over words and print to console.
         // 1 register = 1 word = 2 bytes = 16 bits
@@ -299,11 +292,31 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
             LOG_INFO("R %u of U %u has no known register data!", register_num, unit);
           }
           LOG_INFO("R %u value: 0x%04x - uint16 %u", register_num, value, value);
+
+          response_data->register_data[word] = value;
           
-          #ifdef INFLUX_LOGGING
-          influx_log_raw(unit, register_num, value);
-          #endif // INFLUX_LOGGING
+          // #ifdef INFLUX_LOGGING
+          // influx_log_raw(unit, register_num, value);
+          // #endif // INFLUX_LOGGING
         }
+
+        struct Modbus_Response response = {
+          &context,
+          response_data
+        };
+
+        // TODO:  allow for variable number of response_processors (including zero)
+        LOG_DEBUG("response_processors[0] about to be called");
+        if (response_processors[0] == NULL) {
+          LOG_ERROR("response processor is NULL - calling that will not be fun");
+        }
+        else {
+          response_processors[0](&response);
+        }
+        
+        free(response_data);
+
+        LOG_PACKET();
       }
       else
       {
